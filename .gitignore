@@ -76,6 +76,7 @@ buck-out/
 *_i.c
 *_p.c
 *.ncb
+*.v2
 *.tlb
 *.tlh
 *.[Cc]ache
