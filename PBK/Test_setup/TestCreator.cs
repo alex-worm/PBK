@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PBK.Test_setup
 {
-    class TestCreator
+    public class TestCreator
     {
         public static void CreateNewTest(string name)
         {

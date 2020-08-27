@@ -2,7 +2,7 @@
 
 namespace PBK.Logic
 {
-    internal class Timer
+    public class Timer
     {
         public const int millisecsInMinute = 60000;
 

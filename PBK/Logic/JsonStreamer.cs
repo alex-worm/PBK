@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PBK.Logic
 {
-    class JsonStreamer
+    public class JsonStreamer
     {
         public static void Write(Test info)
         {
