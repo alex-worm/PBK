@@ -11,5 +11,11 @@ namespace PBK.Test_setup
         internal List<string> Answers { get; set; }
 
         internal List<string> CorrectAnswers { get; set; }
+
+        public Question()
+        {
+            Answers = new List<string>();
+            CorrectAnswers = new List<string>();
+        }
     }
 }

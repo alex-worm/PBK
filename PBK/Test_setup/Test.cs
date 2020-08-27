@@ -13,5 +13,10 @@ namespace PBK.Test_setup
         internal int AnswersNumber { get; set; }
 
         internal List<Question> Questions { get; set; }
+
+        public Test()
+        {
+            Questions = new List<Question>();
+        }
     }
 }

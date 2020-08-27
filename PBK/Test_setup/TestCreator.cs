@@ -75,6 +75,8 @@ namespace PBK.Test_setup
                 {
                     newQuestion.CorrectAnswers.Add(answer);
                 }
+
+                test.Questions.Add(newQuestion);
             }
         }
     }
