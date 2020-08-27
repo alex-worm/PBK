@@ -6,9 +6,9 @@ namespace PBK.Logic
     {
         protected async static Task Countdown(int time)
         {
-            await Task.Delay(time*60*1000);
+            await Task.Delay(time*60000);
 
-            //return Writer.ShowResult();
+            Writer.ShowResult();
         }
     }
 }

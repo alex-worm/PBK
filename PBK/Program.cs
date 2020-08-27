@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PBK.Logic;
+using System;
 
 namespace PBK
 {
@@ -6,7 +7,9 @@ namespace PBK
     {
         static void Main(string[] args)
         {
-            Test_setup.TestCreator.CreateNewTest("kirill");
+            //Test_setup.TestCreator.CreateNewTest("kirill");
+
+            Writer.Welcome();
 
             Console.WriteLine("Hello World!");
         }

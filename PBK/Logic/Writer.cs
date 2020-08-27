@@ -7,42 +7,41 @@ namespace PBK.Logic
 {
     class Writer
     {
-        protected static void Welcome()
+        internal static void Welcome()
         {
             Console.WriteLine("Hello friend.................");
-        }
 
-        protected static void CommandExecute(string request)
-        {
             while (true)
             {
-                switch (request)
-                {
-                    case "add":
-                        TestCreator.CreateNewTest(DataEntry("Enter the name for the new test:"));
-                        Console.Clear();
-                        return;
+                CommandExecute(DataEntry("Enter your command:"));
+            }
+            
+        }
 
-                    case "edit":
-                        Console.WriteLine("Enter test name to edit:");
-                        Console.Clear();
-                        return;
-
-                    case "delete":
-                        Console.WriteLine("Enter test name to delete:");
-                        Console.Clear();
-                        return;
-
-                    case "open":
-                        Console.WriteLine("Enter test name to open:");
-                        Console.Clear();
-                        return;
-
-                    default:
-                        Console.WriteLine("Command not recognized. Try again:");
-                        Console.Clear();
-                        continue;
-                }
+        private static void CommandExecute(string request)
+        {
+            switch (request)
+            {
+                case "add":
+                    TestCreator.CreateNewTest(DataEntry("Enter the name for the new test:"));
+                    DataEntry("Your test is created. To continue press Enter..");
+                    Console.Clear();
+                    return;
+                case "edit":
+                    Console.WriteLine("Enter test name to edit:");
+                    Console.Clear();
+                    return;
+                case "delete":
+                    Console.WriteLine("Enter test name to delete:");
+                    Console.Clear();
+                    return;
+                case "open":
+                    Console.WriteLine("Enter test name to open:");
+                    Console.Clear();
+                    return;
+                default:
+                    Console.WriteLine("Command not recognized. Try again:");
+                    return;
             }
         }
 
@@ -53,9 +52,9 @@ namespace PBK.Logic
             return Console.ReadLine();
         }
 
-        //internal static void ShowResult()
-        //{
-        //
-        //}
+        internal static void ShowResult()
+        {
+            Console.WriteLine($"Your result is: ...");
+        }
     }
 }
