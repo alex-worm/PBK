@@ -52,5 +52,10 @@ namespace PBK.Logic
 
             return Console.ReadLine();
         }
+
+        //internal static void ShowResult()
+        //{
+        //
+        //}
     }
 }

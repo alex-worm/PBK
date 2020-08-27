@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace PBK
+namespace PBK.Logic
 {
     class Timer
     {
@@ -8,7 +8,7 @@ namespace PBK
         {
             await Task.Delay(time*60*1000);
 
-            //return ShowResult();
+            //return Writer.ShowResult();
         }
     }
 }

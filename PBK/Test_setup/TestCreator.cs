@@ -16,7 +16,7 @@ namespace PBK.Test_setup
 
             CreateQuestions(newTest);
 
-            JsonStreamer.Write(name, newTest); 
+            JsonStreamer.Write(newTest); 
         }
 
         private static void CreateQuestions(Test test)

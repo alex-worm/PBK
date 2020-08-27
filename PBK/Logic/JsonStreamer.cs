@@ -6,9 +6,9 @@ namespace PBK.Logic
 {
     class JsonStreamer
     {
-        internal static void Write(string name, Test info)
+        internal static void Write(Test info)
         {
-            using (FileStream fstream = new FileStream($"{name}.json", FileMode.Create))
+            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.Create))
             {
                 JsonSerializer.SerializeAsync(fstream, info);
             }
