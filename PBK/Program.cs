@@ -7,9 +7,9 @@ namespace PBK
     {
         static void Main(string[] args)
         {
-            //Test_setup.TestCreator.CreateNewTest("kirill");
+            Test_setup.TestCreator.CreateNewTest("kirill");
 
-            Writer.Welcome();
+            //Writer.Welcome();
 
             Console.WriteLine("Hello World!");
         }
