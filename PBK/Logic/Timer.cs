@@ -2,13 +2,15 @@
 
 namespace PBK.Logic
 {
-    class Timer
+    public class Timer
     {
-        protected async static Task Countdown(int time)
-        {
-            await Task.Delay(time*60*1000);
+        public const int millisecsInMinute = 60000;
 
-            //return Writer.ShowResult();
+        public async static Task Countdown(int time)
+        {
+            await Task.Delay(time*millisecsInMinute);
+
+            Writer.ShowResult();
         }
     }
 }

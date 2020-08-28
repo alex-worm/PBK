@@ -5,9 +5,9 @@ using System.Text;
 
 namespace PBK.Test_setup
 {
-    class TestCreator
+    public class TestCreator
     {
-        internal static void CreateNewTest(string name)
+        public static void CreateNewTest(string name)
         {
             Test newTest = new Test
             {
@@ -29,12 +29,9 @@ namespace PBK.Test_setup
 
                     break;
                 }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\aIncorrect input");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                }
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\aIncorrect input");
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
 
             while (true)
@@ -45,12 +42,9 @@ namespace PBK.Test_setup
 
                     break;
                 }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\aIncorrect input");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                }
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\aIncorrect input");
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
 
             InputQuestions(test);

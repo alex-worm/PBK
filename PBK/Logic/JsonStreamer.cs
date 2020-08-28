@@ -4,17 +4,17 @@ using System.Text.Json;
 
 namespace PBK.Logic
 {
-    class JsonStreamer
+    public class JsonStreamer
     {
-        internal static void Write(Test info)
+        public static void Write(Test info)
         {
-            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.Create))
+            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.OpenOrCreate))
             {
                 JsonSerializer.SerializeAsync(fstream, info);
             }
         }
 
-        internal static string Read(string name)
+        public static string Read(string name)
         {
             using (FileStream fstream = new FileStream($"{name}.json", FileMode.Open))
             {

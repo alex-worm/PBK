@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PBK.Test_setup
 {
     public class Test
     {
-        internal string TestName { get; set; }
+        public string TestName { get; set; }
 
-        internal int QuestionsNumber { get; set; }
+        public int QuestionsNumber { get; set; }
 
-        internal int AnswersNumber { get; set; }
+        public int AnswersNumber { get; set; }
 
-        internal List<Question> Questions { get; set; }
+        public List<Question> Questions { get; set; }
 
         public Test()
         {

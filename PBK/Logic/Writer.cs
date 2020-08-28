@@ -1,61 +1,58 @@
 ﻿using PBK.Test_setup;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PBK.Logic
 {
-    class Writer
+    public class Writer
     {
-        protected static void Welcome()
+        public static void GetStarted()
         {
-            Console.WriteLine("Hello friend.................");
+            ExecuteCommand("Hello friend.................\nEnter your command:");            
         }
 
-        protected static void CommandExecute(string request)
+        private static void ExecuteCommand(string request)
         {
-            while (true)
+            switch (request)
             {
-                switch (request)
-                {
-                    case "add":
-                        TestCreator.CreateNewTest(DataEntry("Enter the name for the new test:"));
-                        Console.Clear();
-                        return;
+                case "add":
+                    TestCreator.CreateNewTest(DataEntry("Enter the name for the new test:"));
+                    DataEntry("Your test is created. To continue press Enter..");
+                    Console.Clear();
+                    break;
 
-                    case "edit":
-                        Console.WriteLine("Enter test name to edit:");
-                        Console.Clear();
-                        return;
+                case "edit":
+                    Console.WriteLine("Enter test name to edit:");
+                    Console.Clear();
+                    break;
 
-                    case "delete":
-                        Console.WriteLine("Enter test name to delete:");
-                        Console.Clear();
-                        return;
+                case "delete":
+                    Console.WriteLine("Enter test name to delete:");
+                    Console.Clear();
+                    break;
 
-                    case "open":
-                        Console.WriteLine("Enter test name to open:");
-                        Console.Clear();
-                        return;
+                case "open":
+                    Console.WriteLine("Enter test name to open:");
+                    Console.Clear();
+                    break;
 
-                    default:
-                        Console.WriteLine("Command not recognized. Try again:");
-                        Console.Clear();
-                        continue;
-                }
+                default:
+                    Console.WriteLine("Command not recognized. Try again:");
+                    break;
             }
+
+            ExecuteCommand(DataEntry("Enter your command:"));
         }
 
-        internal static string DataEntry(string message)
+        public static string DataEntry(string message)
         {
             Console.Write(message);
 
             return Console.ReadLine();
         }
 
-        //internal static void ShowResult()
-        //{
-        //
-        //}
+        public static void ShowResult()
+        {
+            Console.WriteLine($"Your result is: ...");
+        }
     }
 }
