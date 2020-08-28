@@ -1,4 +1,5 @@
 ﻿using PBK.Test_setup;
+using System;
 using System.IO;
 using System.Text.Json;
 
@@ -14,11 +15,18 @@ namespace PBK.Logic
             }
         }
 
-        public static string Read(string name)
+        public static Test Read(string name)
         {
-            using (FileStream fstream = new FileStream($"{name}.json", FileMode.Open))
+            try
             {
-                return JsonSerializer.DeserializeAsync<string>(fstream).Result;
+                using (FileStream fstream = new FileStream($"{name}.json", FileMode.Open))
+                {
+                    return JsonSerializer.DeserializeAsync<Test>(fstream).Result;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
     }

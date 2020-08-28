@@ -1,4 +1,4 @@
-﻿using PBK.Test_setup;
+﻿using PBK.Logic;
 using System;
 
 namespace PBK
@@ -7,9 +7,7 @@ namespace PBK
     {
         static void Main(string[] args)
         {
-            TestCreator.CreateNewTest("kirill");
-
-            //Writer.Welcome();
+            Writer.GetStarted();
 
             Console.WriteLine("Hello World!");
         }

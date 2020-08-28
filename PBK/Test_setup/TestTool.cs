@@ -1,11 +1,11 @@
-﻿using PBK.Logic;
+﻿using Microsoft.VisualBasic.FileIO;
+using PBK.Logic;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace PBK.Test_setup
 {
-    public class TestCreator
+    public class TestTool
     {
         public static void CreateNewTest(string name)
         {
@@ -17,6 +17,45 @@ namespace PBK.Test_setup
             CreateQuestions(newTest);
 
             JsonStreamer.Write(newTest); 
+        }
+
+        public static string DeleteTest(string name)
+        {
+            try
+            {
+                File.Delete($"{name}.json");
+                return "File deleted successfully";
+            }
+            catch
+            {
+                return "File not found";
+                //при отсутствии файла catch не срабатывает, так что поищу способ чрез GetFiles
+            }
+        }
+
+        public static void EditTest(string name)
+        {
+            Test test = JsonStreamer.Read(name);
+
+            if (test == null)
+            {
+                Console.WriteLine("File not found or empty");
+
+                return;
+            }
+
+            switch(Writer.DataEntry("Choose an option to change: "))
+            {
+                case "name":
+                    test.TestName = Writer.DataEntry("Enter new file name: ");
+                    DeleteTest(name);
+                    JsonStreamer.Write(test);
+                    return;
+
+                default:
+                    Writer.DataEntry("Incorrect input\nTo continue press Enter..");
+                    return;
+            }
         }
 
         private static void CreateQuestions(Test test)

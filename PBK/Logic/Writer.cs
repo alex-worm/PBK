@@ -7,7 +7,7 @@ namespace PBK.Logic
     {
         public static void GetStarted()
         {
-            ExecuteCommand("Hello friend.................\nEnter your command:");            
+            ExecuteCommand(DataEntry("Hello friend.................\nEnter your command:"));            
         }
 
         private static void ExecuteCommand(string request)
@@ -15,18 +15,20 @@ namespace PBK.Logic
             switch (request)
             {
                 case "add":
-                    TestCreator.CreateNewTest(DataEntry("Enter the name for the new test:"));
+                    TestTool.CreateNewTest(DataEntry("Enter the name for the new test:"));
                     DataEntry("Your test is created. To continue press Enter..");
                     Console.Clear();
                     break;
 
                 case "edit":
-                    Console.WriteLine("Enter test name to edit:");
+                    TestTool.EditTest(DataEntry("Enter test's name to edit it: "));
+                    DataEntry("Your test is changed. To continue press Enter..");
                     Console.Clear();
                     break;
 
                 case "delete":
-                    Console.WriteLine("Enter test name to delete:");
+                    DataEntry($"{TestTool.DeleteTest(DataEntry("Enter test name to delete:"))}" +
+                        $"\nTo continue press Enter..");
                     Console.Clear();
                     break;
 
