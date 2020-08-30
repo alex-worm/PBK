@@ -39,21 +39,24 @@ namespace PBK.Test_setup
 
             if (test == null)
             {
-                Console.WriteLine("File not found or empty");
+                Writer.DataEntry("File not found or empty\nTo continue press Enter..");
 
                 return;
             }
 
-            switch(Writer.DataEntry("Choose an option to change: "))
+            if(!int.TryParse(Writer.DataEntry("Choose a value to change:\n1. Name\n2. Number of questions\n3. Number of answers\n4. Question"), out int result))
             {
-                case "name":
-                    test.TestName = Writer.DataEntry("Enter new file name: ");
+                Writer.DataEntry("Incorrect input\nTo continue press Enter..");
+
+                return;
+            }
+
+            switch (result)
+            {
+                case (int)TestValue.Name:
+                    test.TestName = Writer.DataEntry("Enter new file's name: ");
                     DeleteTest(name);
                     JsonStreamer.Write(test);
-                    return;
-
-                default:
-                    Writer.DataEntry("Incorrect input\nTo continue press Enter..");
                     return;
             }
         }
