@@ -1,6 +1,7 @@
 ﻿using PBK.Test_setup;
 using System;
 using System.IO;
+using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace PBK.Logic
@@ -9,7 +10,7 @@ namespace PBK.Logic
     {
         public static void Write(Test info)
         {
-            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.OpenOrCreate))
+            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.OpenOrCreate)) 
             {
                 JsonSerializer.SerializeAsync(fstream, info);
             }
@@ -17,16 +18,16 @@ namespace PBK.Logic
 
         public static Test Read(string name)
         {
-            try
-            {
-                using (FileStream fstream = new FileStream($"{name}.json", FileMode.Open))
-                {
-                    return JsonSerializer.DeserializeAsync<Test>(fstream).Result;
-                }
-            }
-            catch
+            string fileName = $"{name}.json";
+
+            if (!File.Exists(fileName))
             {
                 return null;
+            }
+
+            using (FileStream fstream = new FileStream(fileName, FileMode.Open))
+            {
+                return JsonSerializer.DeserializeAsync<Test>(fstream).Result;
             }
         }
     }

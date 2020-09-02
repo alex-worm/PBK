@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using PBK.UI;
 using PBK.Logic;
 using System;
 using System.IO;
@@ -21,16 +21,15 @@ namespace PBK.Test_setup
 
         public static string DeleteTest(string name)
         {
-            try
+            string fileName = $"{name}.json";
+
+            if (!File.Exists(fileName))
             {
-                File.Delete($"{name}.json");
-                return "File deleted successfully";
+                return "File does not exist";
             }
-            catch
-            {
-                return "File not found";
-                //при отсутствии файла catch не срабатывает, так что поищу способ чрез GetFiles
-            }
+
+            File.Delete(fileName);
+            return "File deleted successfully";
         }
 
         public static void EditTest(string name)

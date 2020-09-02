@@ -1,10 +1,10 @@
 ﻿namespace PBK.Test_setup
 {
-    enum TestValue
+    public enum TestValue
     {
-        Name,
-        QuestionsNumber,
-        AnswersNumber,
-        Question
+        Name = 1,
+        QuestionsNumber = 2,
+        AnswersNumber = 3,
+        Question = 4
     }
 }

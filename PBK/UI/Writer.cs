@@ -1,7 +1,8 @@
 ﻿using PBK.Test_setup;
 using System;
+using System.Collections.Generic;
 
-namespace PBK.Logic
+namespace PBK.UI
 {
     public class Writer
     {
