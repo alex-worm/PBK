@@ -6,11 +6,17 @@ namespace PBK.Test_setup
     {
         public string TestName { get; set; }
 
+        public int TotalCorrectAnswers { get; set; }
+
+        public int TotalWrongAnswers { get; set; }
+
         public int QuestionsNumber { get; set; }
 
         public int AnswersNumber { get; set; }
 
         public List<Question> Questions { get; set; }
+
+        public int TimerValue { get; set; }
 
         public Test()
         {

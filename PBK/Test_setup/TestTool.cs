@@ -2,6 +2,7 @@
 using PBK.Logic;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace PBK.Test_setup
 {
@@ -19,17 +20,37 @@ namespace PBK.Test_setup
             JsonStreamer.Write(newTest); 
         }
 
-        public static string DeleteTest(string name)
+        public static void DeleteTest(string name)
         {
             string fileName = $"{name}.json";
 
             if (!File.Exists(fileName))
             {
-                return "File does not exist";
+                Writer.DataEntry(TextForOutput.fileNotOpened);
             }
 
             File.Delete(fileName);
-            return "File deleted successfully";
+
+            Writer.DataEntry(TextForOutput.fileDeleted);
+        }
+
+        public static void OpenTest(string name)
+        {
+            Test test = JsonStreamer.Read(name);
+
+            if (test == null)
+            {
+                Writer.DataEntry(TextForOutput.fileNotOpened);
+
+                return;
+            }
+
+            if (test.TimerValue != 0)
+            {
+                TestTimer.Countdown(test);
+            }
+
+            
         }
 
         public static void EditTest(string name)
@@ -38,7 +59,7 @@ namespace PBK.Test_setup
 
             if (test == null)
             {
-                Writer.DataEntry("File not found or empty\nTo continue press Enter..");
+                Writer.DataEntry(TextForOutput.fileNotOpened);
 
                 return;
             }
