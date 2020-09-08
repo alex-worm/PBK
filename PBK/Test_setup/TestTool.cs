@@ -2,24 +2,11 @@
 using PBK.Logic;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace PBK.Test_setup
 {
     public class TestTool
     {
-        public static void CreateNewTest(string name)
-        {
-            Test newTest = new Test
-            {
-                TestName = name
-            };
-
-            CreateQuestions(newTest);
-
-            JsonStreamer.Write(newTest); 
-        }
-
         public static void DeleteTest(string name)
         {
             string fileName = $"{name}.json";
@@ -44,12 +31,6 @@ namespace PBK.Test_setup
 
                 return;
             }
-
-            if (test.TimerValue != 0)
-            {
-                TestTimer.Countdown(test);
-            }
-
             
         }
 
@@ -73,7 +54,7 @@ namespace PBK.Test_setup
 
             switch (result)
             {
-                case (int)TestValue.Name:
+                case (int)TestValueToEdit.Name:
                     test.TestName = Writer.DataEntry("Enter new file's name: ");
                     DeleteTest(name);
                     JsonStreamer.Write(test);
@@ -81,59 +62,90 @@ namespace PBK.Test_setup
             }
         }
 
-        private static void CreateQuestions(Test test)
+        public static void CreateNewTest(string name)
         {
-            while (true)
+            Test newTest = new Test
             {
-                if (int.TryParse(Writer.DataEntry("Enter number of questions:"), out int result))
-                {
-                    test.QuestionsNumber = result;
+                TestName = name
+            };
+            newTest.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
 
-                    break;
-                }
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\aIncorrect input");
-                Console.ForegroundColor = ConsoleColor.Gray;
-            }
+            CreateQuestions(newTest);
 
-            while (true)
-            {
-                if (int.TryParse(Writer.DataEntry("Enter number of answers:"), out int result))
-                {
-                    test.AnswersNumber = result;
-
-                    break;
-                }
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\aIncorrect input");
-                Console.ForegroundColor = ConsoleColor.Gray;
-            }
-
-            InputQuestions(test);
+            JsonStreamer.Write(newTest);
         }
 
-        private static void InputQuestions(Test test)
+        private static void CreateQuestions(Test test)
         {
+            if (!int.TryParse(Writer.DataEntry(TextForOutput.questionsNumber), out int result))
+            {
+                Console.WriteLine(TextForOutput.incorrectInput);
+                CreateQuestions(test);
+            }
+            test.QuestionsNumber = result;
+
+            if (Writer.DataEntry(TextForOutput.closedQuestions) == "1")
+            {
+                test.ClosedQuestions = true;
+                test.AnswersNumber = 0;
+                test.IndicateCorrectAnswer = false;
+                test.TotalGradeAvailability = false;
+            }
+            else test.ClosedQuestions = false;
+
+            test.IndicateCorrectAnswer = Writer.DataEntry(TextForOutput.indicateAnswers) == "1";
+            test.TotalGradeAvailability = Writer.DataEntry(TextForOutput.totalGrade) == "1";
+
+            bool correctInput;
+            do
+            {
+                correctInput = !int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out result);
+            }
+            while (correctInput);
+            test.TimerValue = result;
+
+            do
+            {
+                correctInput = !int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out result);
+            }
+            while (correctInput);
+            test.AnswersNumber = result;
+
             for(var i = 1; i <= test.QuestionsNumber; i++)
             {
-                Question newQuestion = new Question
-                {
-                    QuestionText = Writer.DataEntry("Enter question's text:")
-                };
-
-                for (var j = 1; j <= test.AnswersNumber; j++)
-                {
-                    newQuestion.Answers.Add(Writer.DataEntry($"Enter answer #{j} :"));
-                }
-
-                foreach (string answer  in Writer.DataEntry("Enter correct answers:")
-                    .Split(" ,.\t".ToCharArray()))
-                {
-                    newQuestion.CorrectAnswers.Add(answer);
-                }
-
-                test.Questions.Add(newQuestion);
+                InputQuestions(test, i);
             }
+        }
+
+        private static void InputQuestions(Test test, int i)
+        {
+            Question newQuestion = new Question
+            {
+                QuestionText = Writer.DataEntry(TextForOutput.questionText),
+                QuestionNumber = i
+            };
+
+            for (var j = 1; j <= test.AnswersNumber; j++)
+            {
+                newQuestion.Answers.Add(Writer.DataEntry(TextForOutput.enterAnswer));
+            }
+
+            foreach (var answer in Writer.DataEntry(TextForOutput.correctAnswers)
+                .Split(" ,.\t".ToCharArray()))
+            {
+                newQuestion.CorrectAnswers.Add(answer);
+            }
+
+            bool correctInput;
+            int points;
+            do
+            {
+                correctInput = !int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out points);
+            }
+            while (correctInput);
+            newQuestion.QuestionRating = points;
+
+            test.Questions.Add(newQuestion);
         }
     }
 }

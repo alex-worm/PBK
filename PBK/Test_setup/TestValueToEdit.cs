@@ -1,6 +1,6 @@
 ﻿namespace PBK.Test_setup
 {
-    public enum TestValue
+    public enum TestValueToEdit
     {
         Name = 1,
         QuestionsNumber = 2,
