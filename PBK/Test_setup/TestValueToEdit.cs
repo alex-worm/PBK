@@ -3,8 +3,12 @@
     public enum TestValueToEdit
     {
         Name = 1,
-        QuestionsNumber = 2,
-        AnswersNumber = 3,
-        Question = 4
+        Topic = 2,
+        CloseQuestions = 3,
+        AddQuestion = 4,
+        IndicateCorrectAnswers = 5,
+        IndicateGrade = 6,
+        EditQuestion = 7,
+        TimerValue = 8
     }
 }

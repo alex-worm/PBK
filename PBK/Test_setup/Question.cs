@@ -4,6 +4,9 @@ namespace PBK.Test_setup
 {
     public class Question
     {
+        private int _questionRating;
+        private int _answersNumber;
+
         public Question()
         {
             Answers = new List<string>();
@@ -18,6 +21,20 @@ namespace PBK.Test_setup
 
         public List<string> CorrectAnswers { get; set; }
 
-        public int QuestionRating { get; set; }
+        public int AnswersNumber
+        {
+            get => _answersNumber;
+            set=> _answersNumber = value > 1
+                ? value
+                : default;
+        }
+
+        public int QuestionRating
+        {
+            get => _questionRating;
+            set => _questionRating = value >= 0
+                ? value
+                : default;
+        }
     }
 }

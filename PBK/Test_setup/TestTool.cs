@@ -7,145 +7,177 @@ namespace PBK.Test_setup
 {
     public class TestTool
     {
+        private static Test _test;
+        private const string _firstChoise = "1";
+
         public static void DeleteTest(string name)
         {
             string fileName = $"{name}.json";
 
             if (!File.Exists(fileName))
             {
-                Writer.DataEntry(TextForOutput.fileNotOpened);
+                Console.WriteLine(TextForOutput.notOpened);
+                return;
             }
 
             File.Delete(fileName);
-
-            Writer.DataEntry(TextForOutput.fileDeleted);
+            Console.WriteLine(TextForOutput.fileDeleted);
         }
 
-        public static void OpenTest(string name)
+        public static void OpenTest()
         {
-            Test test = JsonStreamer.Read(name);
+            var name = Writer.DataEntry(TextForOutput.nameToOpen);
+            _test = JsonStreamer.Read(name);
 
-            if (test == null)
+            if (_test == null)
             {
-                Writer.DataEntry(TextForOutput.fileNotOpened);
-
+                Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
             
         }
 
-        public static void EditTest(string name)
+        public static void EditTest()
         {
-            Test test = JsonStreamer.Read(name);
+            var name = Writer.DataEntry(TextForOutput.nameToEdit);
+            _test = JsonStreamer.Read(name);
 
-            if (test == null)
+            if (_test == null)
             {
-                Writer.DataEntry(TextForOutput.fileNotOpened);
-
+                Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
-
-            if(!int.TryParse(Writer.DataEntry("Choose a value to change:\n1. Name\n2. Number of questions\n3. Number of answers\n4. Question"), out int result))
+            if(!int.TryParse(Writer.DataEntry(TextForOutput.valueToChange), out int result))
             {
-                Writer.DataEntry("Incorrect input\nTo continue press Enter..");
-
+                Console.WriteLine(TextForOutput.incorrectInput);
                 return;
             }
 
             switch (result)
             {
                 case (int)TestValueToEdit.Name:
-                    test.TestName = Writer.DataEntry("Enter new file's name: ");
+                    _test.TestName = Writer.DataEntry(TextForOutput.newName);
                     DeleteTest(name);
-                    JsonStreamer.Write(test);
-                    return;
+                    JsonStreamer.Write(_test);
+                    break;
+
+                case (int)TestValueToEdit.Topic:
+                    _test.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
+                    break;
+
+                case (int)TestValueToEdit.IndicateCorrectAnswers:
+                    _test.IndicateCorrectAnswer = Writer.DataEntry(TextForOutput.indicateAnswers) == _firstChoise;
+                    break;
+
+                case (int)TestValueToEdit.TimerValue:
+                    while (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out result));
+                    _test.TimerValue = result;
+                    break;
             }
         }
 
-        public static void CreateNewTest(string name)
+        public static void CreateNewTest()
         {
-            Test newTest = new Test
+            _test = new Test
             {
-                TestName = name
+                TestName = Writer.DataEntry(TextForOutput.nameToAdd)
             };
-            newTest.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
+            SetTitle();
+            CloseQuestions();
+            SetQuestionsNumber();
+            if (_test.ClosedQuestions)
+            {
+                IndicateAnswers();
+                IndicateGrade();
+            }
+            for (var i = 0; i < _test.QuestionsNumber; i++)
+            {
+                InputQuestion(i);
+            }
+            SetTimerValue();
 
-            CreateQuestions(newTest);
-
-            JsonStreamer.Write(newTest);
+            JsonStreamer.Write(_test);
         }
 
-        private static void CreateQuestions(Test test)
+        private static void SetTitle() => _test.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
+
+        private static void CloseQuestions()
         {
-            if (!int.TryParse(Writer.DataEntry(TextForOutput.questionsNumber), out int result))
+            if (Writer.DataEntry(TextForOutput.closedQuestions) != _firstChoise)
+            {
+                _test.ClosedQuestions = false;
+                _test.IndicateCorrectAnswer = false;
+                _test.TotalGradeAvailability = false;
+            }
+            else _test.ClosedQuestions = true;
+        }
+
+        private static void SetQuestionsNumber()
+        {
+            if (!int.TryParse(Writer.DataEntry(TextForOutput.questionsNumber), out var result))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
-                CreateQuestions(test);
+                SetQuestionsNumber();
             }
-            test.QuestionsNumber = result;
-
-            if (Writer.DataEntry(TextForOutput.closedQuestions) == "1")
-            {
-                test.ClosedQuestions = true;
-                test.AnswersNumber = 0;
-                test.IndicateCorrectAnswer = false;
-                test.TotalGradeAvailability = false;
-            }
-            else test.ClosedQuestions = false;
-
-            test.IndicateCorrectAnswer = Writer.DataEntry(TextForOutput.indicateAnswers) == "1";
-            test.TotalGradeAvailability = Writer.DataEntry(TextForOutput.totalGrade) == "1";
-
-            bool correctInput;
-            do
-            {
-                correctInput = !int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out result);
-            }
-            while (correctInput);
-            test.TimerValue = result;
-
-            do
-            {
-                correctInput = !int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out result);
-            }
-            while (correctInput);
-            test.AnswersNumber = result;
-
-            for(var i = 1; i <= test.QuestionsNumber; i++)
-            {
-                InputQuestions(test, i);
-            }
+            _test.QuestionsNumber = result;
         }
 
-        private static void InputQuestions(Test test, int i)
+        private static void IndicateAnswers()=> _test.IndicateCorrectAnswer = Writer.DataEntry(TextForOutput.indicateAnswers) == _firstChoise;
+
+        private static void IndicateGrade() => _test.TotalGradeAvailability = Writer.DataEntry(TextForOutput.totalGrade) == _firstChoise;
+
+        private static void InputQuestion(int questionNumber)
         {
             Question newQuestion = new Question
             {
                 QuestionText = Writer.DataEntry(TextForOutput.questionText),
-                QuestionNumber = i
+                QuestionNumber = questionNumber
             };
 
-            for (var j = 1; j <= test.AnswersNumber; j++)
+            if (_test.ClosedQuestions)
             {
-                newQuestion.Answers.Add(Writer.DataEntry(TextForOutput.enterAnswer));
+                SetUpClosedQuestion(newQuestion);
+            }
+
+            _test.Questions.Add(newQuestion);
+        }
+
+        private static void SetUpClosedQuestion(Question question)
+        {
+            int attemptResult;
+
+            while (!int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out attemptResult))
+            {
+                Console.WriteLine(TextForOutput.incorrectInput);
+            }
+            question.AnswersNumber = attemptResult;
+
+            for (var i = 0; i < question.AnswersNumber; i++)
+            {
+                question.Answers.Add(Writer.DataEntry(TextForOutput.enterAnswer));
             }
 
             foreach (var answer in Writer.DataEntry(TextForOutput.correctAnswers)
                 .Split(" ,.\t".ToCharArray()))
             {
-                newQuestion.CorrectAnswers.Add(answer);
+                question.CorrectAnswers.Add(answer);
             }
 
-            bool correctInput;
-            int points;
-            do
+            while (!int.TryParse(Writer.DataEntry(TextForOutput.pointsNumber), out attemptResult))
             {
-                correctInput = !int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out points);
+                Console.WriteLine(TextForOutput.incorrectInput);
             }
-            while (correctInput);
-            newQuestion.QuestionRating = points;
+            question.QuestionRating = attemptResult;
+        }
 
-            test.Questions.Add(newQuestion);
+        private static void SetTimerValue()
+        {
+            if (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out var result))
+            {
+                Console.WriteLine(TextForOutput.incorrectInput);
+                SetTimerValue();
+            }
+            _test.TimerValue = result;
         }
     }
 }

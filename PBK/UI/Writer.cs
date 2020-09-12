@@ -16,7 +16,7 @@ namespace PBK.UI
         {
             if(!int.TryParse(request, out int result))
             {
-                Console.WriteLine("\aWrong Input");
+                Console.WriteLine(TextForOutput.incorrectInput);
 
                 ExecuteCommand(DataEntry(TextForOutput.enterCommand));
             }
@@ -24,23 +24,23 @@ namespace PBK.UI
             switch (result)
             {
                 case (int)Command.Add:
-                    TestTool.CreateNewTest(DataEntry(TextForOutput.nameToAdd));
-                    Console.Clear();
+                    TestTool.CreateNewTest();
                     break;
 
                 case (int)Command.Edit:
-                    TestTool.EditTest(DataEntry(TextForOutput.nameToEdit));
-                    Console.Clear();
+                    TestTool.EditTest();
                     break;
 
                 case (int)Command.Delete:
                     TestTool.DeleteTest(DataEntry(TextForOutput.nameToDelete));
-                    Console.Clear();
                     break;
 
                 case (int)Command.Open:
-                    TestTool.OpenTest(DataEntry(TextForOutput.nameToOpen));
-                    Console.Clear();
+                    TestTool.OpenTest();
+                    break;
+
+                case (int)Command.Exit:
+                    Environment.Exit(0);
                     break;
             }
 
