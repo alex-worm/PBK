@@ -11,7 +11,7 @@ namespace PBK.Logic
 
         public static void Countdown(Test test)
         {
-            var tm = new TimerCallback(Writer.ShowResult);
+            var tm = new TimerCallback(TestTool.ShowResult);
 
             var testTimer = new Timer(tm, test, test.TimerValue * millisecsInMinute, 0);
         }

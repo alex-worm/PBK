@@ -1,18 +1,16 @@
 ﻿using PBK.Test_setup;
-using System;
 using System.IO;
-using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace PBK.Logic
 {
     public class JsonStreamer
     {
-        public static void Write(Test info)
+        public static async void Write(Test info)
         {
-            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.OpenOrCreate)) 
+            using (FileStream fstream = new FileStream($"{info.TestName}.json", FileMode.Create)) 
             {
-                JsonSerializer.SerializeAsync(fstream, info);
+                await JsonSerializer.SerializeAsync(fstream, info);
             }
         }
 

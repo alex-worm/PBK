@@ -12,7 +12,7 @@ namespace PBK.UI
             ExecuteCommand(DataEntry(TextForOutput.enterCommand));            
         }
 
-        private static void ExecuteCommand(string request)
+        public static void ExecuteCommand(string request)
         {
             if(!int.TryParse(request, out int result))
             {
@@ -52,11 +52,6 @@ namespace PBK.UI
             Console.Write(message);
 
             return Console.ReadLine();
-        }
-
-        public static void ShowResult(object test)
-        {
-            Console.WriteLine($"Your result is: ");
         }
     }
 }

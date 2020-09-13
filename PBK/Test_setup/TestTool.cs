@@ -34,7 +34,8 @@ namespace PBK.Test_setup
                 Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
-            
+
+            TestTimer.Countdown(_test);
         }
 
         public static void EditTest()
@@ -47,13 +48,13 @@ namespace PBK.Test_setup
                 Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
-            if(!int.TryParse(Writer.DataEntry(TextForOutput.valueToChange), out int result))
+            if (!int.TryParse(Writer.DataEntry(TextForOutput.valueToChange), out int parseResult))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
                 return;
             }
 
-            switch (result)
+            switch (parseResult)
             {
                 case (int)TestValueToEdit.Name:
                     _test.TestName = Writer.DataEntry(TextForOutput.newName);
@@ -65,15 +66,39 @@ namespace PBK.Test_setup
                     _test.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
                     break;
 
+                case (int)TestValueToEdit.CloseQuestions:
+                    _test.ClosedQuestions = !_test.ClosedQuestions;
+                    Console.WriteLine(TextForOutput.editClosedQuestions + _test.ClosedQuestions);
+                    break;
+
+                case (int)TestValueToEdit.AddQuestion:
+                    _test.QuestionsNumber++;
+                    InputQuestion(_test.QuestionsNumber);
+                    break;
+
                 case (int)TestValueToEdit.IndicateCorrectAnswers:
-                    _test.IndicateCorrectAnswer = Writer.DataEntry(TextForOutput.indicateAnswers) == _firstChoise;
+                    _test.IndicateCorrectAnswer = !_test.IndicateCorrectAnswer;
+                    Console.WriteLine(TextForOutput.editIndicateAnswers + _test.IndicateCorrectAnswer);
+                    break;
+
+                case (int)TestValueToEdit.IndicateGrade:
+                    _test.TotalGradeAvailability = !_test.TotalGradeAvailability;
+                    Console.WriteLine(TextForOutput.editIndicateAnswers + _test.TotalGradeAvailability);
+                    break;
+
+                case (int)TestValueToEdit.EditQuestion:
+                    while (!int.TryParse(Writer.DataEntry(TextForOutput.editQuestion), out parseResult)) ;
+                    _test.Questions[parseResult - 1] = InputQuestion(parseResult);
                     break;
 
                 case (int)TestValueToEdit.TimerValue:
-                    while (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out result));
-                    _test.TimerValue = result;
+                    while (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out parseResult)) ;
+                    _test.TimerValue = parseResult;
                     break;
+                    
             }
+
+            JsonStreamer.Write(_test);
         }
 
         public static void CreateNewTest()
@@ -90,9 +115,9 @@ namespace PBK.Test_setup
                 IndicateAnswers();
                 IndicateGrade();
             }
-            for (var i = 0; i < _test.QuestionsNumber; i++)
+            for (var i = 1; i <= _test.QuestionsNumber; i++)
             {
-                InputQuestion(i);
+                _test.Questions.Add(InputQuestion(i));
             }
             SetTimerValue();
 
@@ -126,7 +151,7 @@ namespace PBK.Test_setup
 
         private static void IndicateGrade() => _test.TotalGradeAvailability = Writer.DataEntry(TextForOutput.totalGrade) == _firstChoise;
 
-        private static void InputQuestion(int questionNumber)
+        private static Question InputQuestion(int questionNumber)
         {
             Question newQuestion = new Question
             {
@@ -139,7 +164,7 @@ namespace PBK.Test_setup
                 SetUpClosedQuestion(newQuestion);
             }
 
-            _test.Questions.Add(newQuestion);
+            return newQuestion;
         }
 
         private static void SetUpClosedQuestion(Question question)
@@ -178,6 +203,13 @@ namespace PBK.Test_setup
                 SetTimerValue();
             }
             _test.TimerValue = result;
+        }
+
+        public static void ShowResult(object test)
+        {
+            _test = (Test)test;
+            _test.PassesNumber++;
+            Console.WriteLine(_test.TestName);
         }
     }
 }
