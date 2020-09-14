@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PBK.Test_setup
+namespace PBK.Entities
 {
     public class Question
     {

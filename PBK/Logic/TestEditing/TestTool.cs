@@ -1,9 +1,11 @@
 ﻿using PBK.UI;
-using PBK.Logic;
+using PBK.Entities;
 using System;
 using System.IO;
+using System.Text.Json;
+using PBK.Logic.QuestionEditing;
 
-namespace PBK.Test_setup
+namespace PBK.Logic.EntityEditing
 {
     public class TestTool
     {
@@ -24,24 +26,10 @@ namespace PBK.Test_setup
             Console.WriteLine(TextForOutput.fileDeleted);
         }
 
-        public static void OpenTest()
-        {
-            var name = Writer.DataEntry(TextForOutput.nameToOpen);
-            _test = JsonStreamer.Read(name);
-
-            if (_test == null)
-            {
-                Console.WriteLine(TextForOutput.notOpened);
-                return;
-            }
-
-            TestTimer.Countdown(_test);
-        }
-
         public static void EditTest()
         {
             var name = Writer.DataEntry(TextForOutput.nameToEdit);
-            _test = JsonStreamer.Read(name);
+            _test = Read(name);
 
             if (_test == null)
             {
@@ -59,7 +47,7 @@ namespace PBK.Test_setup
                 case (int)TestValueToEdit.Name:
                     _test.TestName = Writer.DataEntry(TextForOutput.newName);
                     DeleteTest(name);
-                    JsonStreamer.Write(_test);
+                    Write(_test);
                     break;
 
                 case (int)TestValueToEdit.Topic:
@@ -73,7 +61,7 @@ namespace PBK.Test_setup
 
                 case (int)TestValueToEdit.AddQuestion:
                     _test.QuestionsNumber++;
-                    InputQuestion(_test.QuestionsNumber);
+                    QuestionTool.InputQuestion(_test, _test.QuestionsNumber);
                     break;
 
                 case (int)TestValueToEdit.IndicateCorrectAnswers:
@@ -88,7 +76,7 @@ namespace PBK.Test_setup
 
                 case (int)TestValueToEdit.EditQuestion:
                     while (!int.TryParse(Writer.DataEntry(TextForOutput.editQuestion), out parseResult)) ;
-                    _test.Questions[parseResult - 1] = InputQuestion(parseResult);
+                    _test.Questions[parseResult - 1] = QuestionTool.InputQuestion(_test, parseResult);
                     break;
 
                 case (int)TestValueToEdit.TimerValue:
@@ -98,7 +86,7 @@ namespace PBK.Test_setup
                     
             }
 
-            JsonStreamer.Write(_test);
+            Write(_test);
         }
 
         public static void CreateNewTest()
@@ -117,11 +105,11 @@ namespace PBK.Test_setup
             }
             for (var i = 1; i <= _test.QuestionsNumber; i++)
             {
-                _test.Questions.Add(InputQuestion(i));
+                _test.Questions.Add(QuestionTool.InputQuestion(_test, i));
             }
             SetTimerValue();
 
-            JsonStreamer.Write(_test);
+            Write(_test);
         }
 
         private static void SetTitle() => _test.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
@@ -151,50 +139,6 @@ namespace PBK.Test_setup
 
         private static void IndicateGrade() => _test.TotalGradeAvailability = Writer.DataEntry(TextForOutput.totalGrade) == _firstChoise;
 
-        private static Question InputQuestion(int questionNumber)
-        {
-            Question newQuestion = new Question
-            {
-                QuestionText = Writer.DataEntry(TextForOutput.questionText),
-                QuestionNumber = questionNumber
-            };
-
-            if (_test.ClosedQuestions)
-            {
-                SetUpClosedQuestion(newQuestion);
-            }
-
-            return newQuestion;
-        }
-
-        private static void SetUpClosedQuestion(Question question)
-        {
-            int attemptResult;
-
-            while (!int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out attemptResult))
-            {
-                Console.WriteLine(TextForOutput.incorrectInput);
-            }
-            question.AnswersNumber = attemptResult;
-
-            for (var i = 0; i < question.AnswersNumber; i++)
-            {
-                question.Answers.Add(Writer.DataEntry(TextForOutput.enterAnswer));
-            }
-
-            foreach (var answer in Writer.DataEntry(TextForOutput.correctAnswers)
-                .Split(" ,.\t".ToCharArray()))
-            {
-                question.CorrectAnswers.Add(answer);
-            }
-
-            while (!int.TryParse(Writer.DataEntry(TextForOutput.pointsNumber), out attemptResult))
-            {
-                Console.WriteLine(TextForOutput.incorrectInput);
-            }
-            question.QuestionRating = attemptResult;
-        }
-
         private static void SetTimerValue()
         {
             if (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out var result))
@@ -205,11 +149,27 @@ namespace PBK.Test_setup
             _test.TimerValue = result;
         }
 
-        public static void ShowResult(object test)
+        private static async void Write(Test test)
         {
-            _test = (Test)test;
-            _test.PassesNumber++;
-            Console.WriteLine(_test.TestName);
+            using (FileStream fstream = new FileStream($"{test.TestName}.json", FileMode.Create))
+            {
+                await JsonSerializer.SerializeAsync(fstream, test);
+            }
+        }
+
+        private static Test Read(string name)
+        {
+            string fileName = $"{name}.json";
+
+            if (!File.Exists(fileName))
+            {
+                return null;
+            }
+
+            using (FileStream fstream = new FileStream(fileName, FileMode.Open))
+            {
+                return JsonSerializer.DeserializeAsync<Test>(fstream).Result;
+            }
         }
     }
 }

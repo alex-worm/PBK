@@ -1,4 +1,5 @@
-﻿using PBK.Test_setup;
+﻿using PBK.Entities;
+using PBK.Logic.EntityEditing;
 using System;
 
 namespace PBK.UI
@@ -36,7 +37,6 @@ namespace PBK.UI
                     break;
 
                 case (int)Command.Open:
-                    TestTool.OpenTest();
                     break;
 
                 case (int)Command.Exit:
@@ -52,6 +52,12 @@ namespace PBK.UI
             Console.Write(message);
 
             return Console.ReadLine();
+        }
+
+        public static void ShowResult(object obj)
+        {
+            var test = (Test)obj;
+            test.PassesNumber++;
         }
     }
 }

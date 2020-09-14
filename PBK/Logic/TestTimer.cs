@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-using PBK.UI;
-using PBK.Test_setup;
+﻿using PBK.Entities;
 using System.Threading;
+using PBK.UI;
 
 namespace PBK.Logic
 {
@@ -11,7 +10,7 @@ namespace PBK.Logic
 
         public static void Countdown(Test test)
         {
-            var tm = new TimerCallback(TestTool.ShowResult);
+            var tm = new TimerCallback(Writer.ShowResult);
 
             var testTimer = new Timer(tm, test, test.TimerValue * millisecsInMinute, 0);
         }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace PBK.Test_setup
+namespace PBK.Entities
 {
     public class Topic
     {
