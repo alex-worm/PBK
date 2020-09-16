@@ -10,7 +10,6 @@ namespace PBK.Entities
         public Question()
         {
             Answers = new List<string>();
-            CorrectAnswers = new List<string>();
         }
 
         public string QuestionText { get; set; }
@@ -19,7 +18,7 @@ namespace PBK.Entities
 
         public List<string> Answers { get; set; }
 
-        public List<string> CorrectAnswers { get; set; }
+        public string CorrectAnswer { get; set; }
 
         public int AnswersNumber
         {

@@ -36,6 +36,7 @@ namespace PBK.Logic.EntityEditing
                 Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
+
             if (!int.TryParse(Writer.DataEntry(TextForOutput.valueToChange), out int parseResult))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
@@ -149,7 +150,7 @@ namespace PBK.Logic.EntityEditing
             _test.TimerValue = result;
         }
 
-        private static async void Write(Test test)
+        public static async void Write(Test test)
         {
             using (FileStream fstream = new FileStream($"{test.TestName}.json", FileMode.Create))
             {
@@ -157,7 +158,7 @@ namespace PBK.Logic.EntityEditing
             }
         }
 
-        private static Test Read(string name)
+        public static Test Read(string name)
         {
             string fileName = $"{name}.json";
 

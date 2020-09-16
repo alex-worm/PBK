@@ -38,11 +38,7 @@ namespace PBK.Logic.QuestionEditing
                 question.Answers.Add(Writer.DataEntry(TextForOutput.enterAnswer));
             }
 
-            foreach (var answer in Writer.DataEntry(TextForOutput.correctAnswers)
-                .Split(" ,.\t".ToCharArray()))
-            {
-                question.CorrectAnswers.Add(answer);
-            }
+            question.CorrectAnswer = Writer.DataEntry(TextForOutput.correctAnswer);
 
             while (!int.TryParse(Writer.DataEntry(TextForOutput.pointsNumber), out attemptResult))
             {

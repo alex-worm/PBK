@@ -7,7 +7,7 @@
         public const string nameToAdd = "Enter the name for the new test: ";
         public const string nameToEdit = "Enter test's name to edit it: ";
         public const string nameToDelete = "Enter test's name to delete: ";
-        public const string nameToOpen = "Enter test name to open: ";
+        public const string nameToOpen = "Enter test's name to open: ";
         public const string notOpened = "\aFile not found";
         public const string fileDeleted = "File deleted successfully";
         public const string inputTopic = "Input topic for this test: ";
@@ -21,7 +21,7 @@
         public const string questionRating = "Input number of points for this question: ";
         public const string questionText = "Enter question's text: ";
         public const string enterAnswer = "Enter answer for this question:";
-        public const string correctAnswers = "Enter correct answers: ";
+        public const string correctAnswer = "Enter correct answer: ";
         public const string valueToChange = "Choose a value to change:\n1. Name\n2. Number of questions\n3. Number of answers\n4. Question\n";
         public const string pointsNumber = "Enter the number of points for this question: ";
         public const string newName = "Enter new file's name: ";

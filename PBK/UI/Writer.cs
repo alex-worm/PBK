@@ -1,11 +1,15 @@
 ﻿using PBK.Entities;
 using PBK.Logic.EntityEditing;
+using PBK.Logic.TestPassing;
 using System;
+using System.Threading;
 
 namespace PBK.UI
 {
     public class Writer
     {
+        private const int millisecsInMinute = 60000;
+
         public static void GetStarted()
         {
             Console.WriteLine(TextForOutput.greeting);
@@ -37,6 +41,7 @@ namespace PBK.UI
                     break;
 
                 case (int)Command.Open:
+                    Tester.PassTest(DataEntry(TextForOutput.nameToOpen));
                     break;
 
                 case (int)Command.Exit:
@@ -45,6 +50,14 @@ namespace PBK.UI
             }
 
             ExecuteCommand(DataEntry(TextForOutput.enterCommand));
+        }
+
+        public static void DisplayTopicInfo(Topic topic)
+        {
+            foreach(var i in topic.IncludedTests)
+            {
+                Console.WriteLine($"{i.TestName} {i.PassesNumber} {i.TotalCorrectAnswers} {i.QuestionsNumber * i.PassesNumber - i.TotalCorrectAnswers}");
+            }
         }
 
         public static string DataEntry(string message)
@@ -57,6 +70,9 @@ namespace PBK.UI
         public static void ShowResult(object obj)
         {
             var test = (Test)obj;
+            Thread.Sleep(test.TimerValue * millisecsInMinute);
+
+            Console.WriteLine("\aTime's out");
             test.PassesNumber++;
         }
     }
