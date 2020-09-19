@@ -9,10 +9,12 @@ namespace PBK.Entities
 
         public Test()
         {
+            Results = new List<string>();
             Questions = new List<Question>();
-
-            TestTopic = new Topic();
-            TestTopic.Subtopics = new List<Topic>();
+            TestTopic = new Topic
+            {
+                Subtopics = new List<Topic>()
+            };
         }
 
         public string TestName { get; set; }
@@ -42,6 +44,8 @@ namespace PBK.Entities
         }
 
         public bool TotalGradeAvailability { get; set; }
+
+        public List<string> Results { get; set; }
 
         public int TotalCorrectAnswers { get; set; }
 

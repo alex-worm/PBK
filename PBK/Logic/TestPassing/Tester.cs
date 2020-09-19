@@ -1,25 +1,39 @@
 ﻿using PBK.Entities;
 using PBK.Logic.EntityEditing;
+using PBK.Logic.TestEditing;
 using PBK.UI;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PBK.Logic.TestPassing
 {
     class Tester
     {
-        private static Test _test;
-
-        public async static void Countdown(Test test)
+        public async void Countdown(Test test)
         {
-            await Task.Run(() => Writer.ShowResult(test));
+            var writer = new ConsoleOutput();
+
+            await Task.Run(() => writer.ShowResult(test));
         }
 
-        public static void PassTest(string name)
+
+
+
+
+
+        //exceptions
+
+
+
+
+
+        public void PassTest(string name)
         {
-            _test = TestTool.Read(name);
-            if (_test == null)
+            var serializator = new TestSerializator();
+
+            var test = serializator.Deserialize(name);
+
+            if (test == null)
             {
                 Console.WriteLine(TextForOutput.notOpened);
                 return;
@@ -28,26 +42,24 @@ namespace PBK.Logic.TestPassing
             var userCorrect = 0;
             var userGrade = 0;
 
-            if (_test.TimerValue != 0)
+            if (test.TimerValue != 0)
             {
-                Countdown(_test);
+                Countdown(test);
             }
-            
-            foreach (var question in _test.Questions)
+
+            test.Questions.ForEach(el =>
             {
-                Console.WriteLine(question.QuestionText);
-                if (GetAnswer(question))
+                Console.WriteLine(el.QuestionText);
+
+                if (AnswerIsCorrect(test, el))
                 {
                     userCorrect++;
-                    if (_test.ClosedQuestions)
-                    {
-                        userGrade += question.QuestionRating;
-                    }
+                    userGrade += el.QuestionRating;
                 }
-            }
+            });
         }
 
-        private static bool GetAnswer(Question question)
+        private bool AnswerIsCorrect(Test test, Question question)
         {
             for(var i = 0; i < question.AnswersNumber; i++)
             {
@@ -55,7 +67,8 @@ namespace PBK.Logic.TestPassing
             }
 
             var userAnswer = Console.ReadLine();
-            if (_test.IndicateCorrectAnswer)
+
+            if (test.IndicateCorrectAnswer)
             {
                 Console.WriteLine(userAnswer == question.CorrectAnswer);
             }

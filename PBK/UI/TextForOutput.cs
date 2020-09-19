@@ -1,6 +1,6 @@
 ﻿namespace PBK.UI
 {
-    public class TextForOutput
+    public static class TextForOutput
     {
         public const string greeting = "Hello friend.................";
         public const string enterCommand = "Enter your command:\n1. Add\n2. Edit\n3. Delete\n4. Open\n5. Exit\n";

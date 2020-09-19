@@ -1,5 +1,4 @@
-﻿using PBK.UI;
-using System;
+﻿using PBK.Logic;
 
 namespace PBK
 {
@@ -7,9 +6,9 @@ namespace PBK
     {
         static void Main(string[] args)
         {
-            Writer.GetStarted();
+            var executer = new CommandExecuter();
 
-            Console.WriteLine("Hello World!");
+            executer.GetStarted();
         }
     }
 }

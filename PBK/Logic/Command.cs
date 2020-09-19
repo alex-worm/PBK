@@ -6,6 +6,7 @@
         Edit = 2,
         Delete = 3,
         Open = 4,
-        Exit = 5
+        DisplayStats = 5,
+        Exit = 6
     }
 }

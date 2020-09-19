@@ -2,17 +2,14 @@
 using PBK.Entities;
 using System;
 using System.IO;
-using System.Text.Json;
 using PBK.Logic.QuestionEditing;
+using PBK.Logic.TestEditing;
 
 namespace PBK.Logic.EntityEditing
 {
     public class TestTool
     {
-        private static Test _test;
-        private const string _firstChoise = "1";
-
-        public static void DeleteTest(string name)
+        public void DeleteTest(string name)
         {
             string fileName = $"{name}.json";
 
@@ -26,151 +23,165 @@ namespace PBK.Logic.EntityEditing
             Console.WriteLine(TextForOutput.fileDeleted);
         }
 
-        public static void EditTest()
+        public void EditTest()
         {
-            var name = Writer.DataEntry(TextForOutput.nameToEdit);
-            _test = Read(name);
+            var writer = new ConsoleOutput();
+            var serializator = new TestSerializator();
 
-            if (_test == null)
+            var name = writer.DataEntry(TextForOutput.nameToEdit);
+            var test = serializator.Deserialize(name);
+
+            if (test == null)
             {
                 Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
 
-            if (!int.TryParse(Writer.DataEntry(TextForOutput.valueToChange), out int parseResult))
+            if (!int.TryParse(writer.DataEntry(TextForOutput.valueToChange), out int parseResult))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
                 return;
             }
 
+            var questionEditor = new QuestionTool();
+
             switch (parseResult)
             {
                 case (int)TestValueToEdit.Name:
-                    _test.TestName = Writer.DataEntry(TextForOutput.newName);
+                    test.TestName = writer.DataEntry(TextForOutput.newName);
                     DeleteTest(name);
-                    Write(_test);
+                    serializator.Serialize(test);
                     break;
 
                 case (int)TestValueToEdit.Topic:
-                    _test.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
+                    test.TestTopic.Title = writer.DataEntry(TextForOutput.inputTopic);
                     break;
 
                 case (int)TestValueToEdit.CloseQuestions:
-                    _test.ClosedQuestions = !_test.ClosedQuestions;
-                    Console.WriteLine(TextForOutput.editClosedQuestions + _test.ClosedQuestions);
+                    test.ClosedQuestions = !test.ClosedQuestions;
+                    Console.WriteLine(TextForOutput.editClosedQuestions + test.ClosedQuestions);
                     break;
 
                 case (int)TestValueToEdit.AddQuestion:
-                    _test.QuestionsNumber++;
-                    QuestionTool.InputQuestion(_test, _test.QuestionsNumber);
+                    test.QuestionsNumber++;
+                    questionEditor.InputQuestion(test, test.QuestionsNumber);
                     break;
 
                 case (int)TestValueToEdit.IndicateCorrectAnswers:
-                    _test.IndicateCorrectAnswer = !_test.IndicateCorrectAnswer;
-                    Console.WriteLine(TextForOutput.editIndicateAnswers + _test.IndicateCorrectAnswer);
+                    test.IndicateCorrectAnswer = !test.IndicateCorrectAnswer;
+                    Console.WriteLine(TextForOutput.editIndicateAnswers + test.IndicateCorrectAnswer);
                     break;
 
                 case (int)TestValueToEdit.IndicateGrade:
-                    _test.TotalGradeAvailability = !_test.TotalGradeAvailability;
-                    Console.WriteLine(TextForOutput.editIndicateAnswers + _test.TotalGradeAvailability);
+                    test.TotalGradeAvailability = !test.TotalGradeAvailability;
+                    Console.WriteLine(TextForOutput.editIndicateAnswers + test.TotalGradeAvailability);
                     break;
 
                 case (int)TestValueToEdit.EditQuestion:
-                    while (!int.TryParse(Writer.DataEntry(TextForOutput.editQuestion), out parseResult)) ;
-                    _test.Questions[parseResult - 1] = QuestionTool.InputQuestion(_test, parseResult);
+                    while (!int.TryParse(writer.DataEntry(TextForOutput.editQuestion), out parseResult)) ;
+                    test.Questions[parseResult - 1] = questionEditor.InputQuestion(test, parseResult);
                     break;
 
                 case (int)TestValueToEdit.TimerValue:
-                    while (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out parseResult)) ;
-                    _test.TimerValue = parseResult;
+                    while (!int.TryParse(writer.DataEntry(TextForOutput.timerValue), out parseResult)) ;
+                    test.TimerValue = parseResult;
                     break;
                     
             }
 
-            Write(_test);
+            serializator.Serialize(test);
         }
 
-        public static void CreateNewTest()
+        public void CreateNewTest()
         {
-            _test = new Test
+            var writer = new ConsoleOutput();
+            var serializator = new TestSerializator();
+
+            var test = new Test
             {
-                TestName = Writer.DataEntry(TextForOutput.nameToAdd)
+                TestName = writer.DataEntry(TextForOutput.nameToAdd)
             };
-            SetTitle();
-            CloseQuestions();
-            SetQuestionsNumber();
-            if (_test.ClosedQuestions)
-            {
-                IndicateAnswers();
-                IndicateGrade();
-            }
-            for (var i = 1; i <= _test.QuestionsNumber; i++)
-            {
-                _test.Questions.Add(QuestionTool.InputQuestion(_test, i));
-            }
-            SetTimerValue();
 
-            Write(_test);
+            SetTitle(test, writer);
+            CloseQuestions(test, writer);
+            SetQuestionsNumber(test, writer);
+
+            if (test.ClosedQuestions)
+            {
+                IndicateAnswers(test, writer);
+                IndicateGrade(test, writer);
+            }
+
+            var questionEditor = new QuestionTool();
+
+            for (var i = 1; i <= test.QuestionsNumber; i++)
+            {
+                test.Questions.Add(questionEditor.InputQuestion(test, i));
+            }
+
+            SetTimerValue(test, writer);
+
+            serializator.Serialize(test);
         }
 
-        private static void SetTitle() => _test.TestTopic.Title = Writer.DataEntry(TextForOutput.inputTopic);
+        private void SetTitle(Test test, ConsoleOutput writer) => test.TestTopic.Title = writer.DataEntry(TextForOutput.inputTopic);
 
-        private static void CloseQuestions()
+        private void CloseQuestions(Test test, ConsoleOutput writer)
         {
-            if (Writer.DataEntry(TextForOutput.closedQuestions) != _firstChoise)
-            {
-                _test.ClosedQuestions = false;
-                _test.IndicateCorrectAnswer = false;
-                _test.TotalGradeAvailability = false;
-            }
-            else _test.ClosedQuestions = true;
-        }
-
-        private static void SetQuestionsNumber()
-        {
-            if (!int.TryParse(Writer.DataEntry(TextForOutput.questionsNumber), out var result))
+            if (!int.TryParse(writer.DataEntry(TextForOutput.closedQuestions), out var result))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
-                SetQuestionsNumber();
+
+                CloseQuestions(test, writer);
             }
-            _test.QuestionsNumber = result;
+
+            if (result == (int)Choise.SecondChoise)
+            {
+                test.ClosedQuestions = false;
+                test.IndicateCorrectAnswer = false;
+                test.TotalGradeAvailability = false;
+            }
+            else test.ClosedQuestions = true;
         }
 
-        private static void IndicateAnswers()=> _test.IndicateCorrectAnswer = Writer.DataEntry(TextForOutput.indicateAnswers) == _firstChoise;
-
-        private static void IndicateGrade() => _test.TotalGradeAvailability = Writer.DataEntry(TextForOutput.totalGrade) == _firstChoise;
-
-        private static void SetTimerValue()
+        private void SetQuestionsNumber(Test test, ConsoleOutput writer)
         {
-            if (!int.TryParse(Writer.DataEntry(TextForOutput.timerValue), out var result))
+            if (!int.TryParse(writer.DataEntry(TextForOutput.questionsNumber), out var result))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
-                SetTimerValue();
+                SetQuestionsNumber(test, writer);
             }
-            _test.TimerValue = result;
+            test.QuestionsNumber = result;
         }
 
-        public static async void Write(Test test)
+        private void IndicateAnswers(Test test, ConsoleOutput writer)
         {
-            using (FileStream fstream = new FileStream($"{test.TestName}.json", FileMode.Create))
+            if (!int.TryParse(writer.DataEntry(TextForOutput.indicateAnswers), out var result) && result > 0 && result < 3)
             {
-                await JsonSerializer.SerializeAsync(fstream, test);
+                Console.WriteLine(TextForOutput.incorrectInput);
+                SetTimerValue(test, writer);
             }
+            test.IndicateCorrectAnswer = result == (int)Choise.FirstChoise;
         }
 
-        public static Test Read(string name)
+        private void IndicateGrade(Test test, ConsoleOutput writer)
         {
-            string fileName = $"{name}.json";
-
-            if (!File.Exists(fileName))
+            if (!int.TryParse(writer.DataEntry(TextForOutput.totalGrade), out var result) && result > 0 && result < 3)
             {
-                return null;
+                Console.WriteLine(TextForOutput.incorrectInput);
+                SetTimerValue(test, writer);
             }
+            test.TotalGradeAvailability = result == (int)Choise.FirstChoise;
+        }
 
-            using (FileStream fstream = new FileStream(fileName, FileMode.Open))
+        private void SetTimerValue(Test test, ConsoleOutput writer)
+        {
+            if (!int.TryParse(writer.DataEntry(TextForOutput.timerValue), out var result))
             {
-                return JsonSerializer.DeserializeAsync<Test>(fstream).Result;
+                Console.WriteLine(TextForOutput.incorrectInput);
+                SetTimerValue(test, writer);
             }
+            test.TimerValue = result;
         }
     }
 }

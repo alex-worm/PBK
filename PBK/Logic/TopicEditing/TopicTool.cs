@@ -1,15 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json;
-using PBK.Entities;
 using PBK.UI;
 
 namespace PBK.Logic.TopicEditing
 {
     class TopicTool
     {
-        private static Topic _topic;
-
         private static bool CheckFileExistence(string fileName)
         {
             if (File.Exists(fileName))
@@ -30,38 +26,24 @@ namespace PBK.Logic.TopicEditing
             Console.WriteLine(TextForOutput.fileDeleted);
         }
 
-        public static void DisplaySummary(string name)
+        public void DisplaySummary(string name)
         {
             if (!CheckFileExistence(name))
             {
                 Console.WriteLine(TextForOutput.notOpened);
             }
+            var serializator = new TopicSerializator();
+            var topic = serializator.Deserialize(name);
 
-            _topic = Read(name);
-
-            if (_topic == null)
+            if (topic == null)
             {
                 Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
 
-            Writer.DisplayTopicInfo(_topic);
-        }
+            var writer = new ConsoleOutput();
 
-        private static async void Write(Topic topic)
-        {
-            using (FileStream fstream = new FileStream($"TOPIC {topic.Title}.json", FileMode.Create))
-            {
-                await JsonSerializer.SerializeAsync(fstream, topic);
-            }
-        }
-
-        private static Topic Read(string fileName)
-        {
-            using (FileStream fstream = new FileStream($"{fileName}.json", FileMode.OpenOrCreate))
-            {
-                return JsonSerializer.DeserializeAsync<Topic>(fstream).Result;
-            }
+            writer.DisplayTopicInfo(topic);
         }
     }
 }

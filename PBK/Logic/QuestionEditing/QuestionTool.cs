@@ -2,32 +2,33 @@
 using PBK.UI;
 using System;
 
-
 namespace PBK.Logic.QuestionEditing
 {
     class QuestionTool
     {
-        public static Question InputQuestion(Test test, int questionNumber)
+        public Question InputQuestion(Test test, int questionNumber)
         {
+            var writer = new ConsoleOutput();
+
             Question newQuestion = new Question
             {
-                QuestionText = Writer.DataEntry(TextForOutput.questionText),
+                QuestionText = writer.DataEntry(TextForOutput.questionText),
                 QuestionNumber = questionNumber
             };
 
             if (test.ClosedQuestions)
             {
-                SetUpClosedQuestion(newQuestion);
+                SetUpClosedQuestion(newQuestion, writer);
             }
 
             return newQuestion;
         }
 
-        private static void SetUpClosedQuestion(Question question)
+        private void SetUpClosedQuestion(Question question, ConsoleOutput writer)
         {
             int attemptResult;
 
-            while (!int.TryParse(Writer.DataEntry(TextForOutput.answersNumber), out attemptResult))
+            while (!int.TryParse(writer.DataEntry(TextForOutput.answersNumber), out attemptResult))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
             }
@@ -35,12 +36,12 @@ namespace PBK.Logic.QuestionEditing
 
             for (var i = 0; i < question.AnswersNumber; i++)
             {
-                question.Answers.Add(Writer.DataEntry(TextForOutput.enterAnswer));
+                question.Answers.Add(writer.DataEntry(TextForOutput.enterAnswer));
             }
 
-            question.CorrectAnswer = Writer.DataEntry(TextForOutput.correctAnswer);
+            question.CorrectAnswer = writer.DataEntry(TextForOutput.correctAnswer);
 
-            while (!int.TryParse(Writer.DataEntry(TextForOutput.pointsNumber), out attemptResult))
+            while (!int.TryParse(writer.DataEntry(TextForOutput.pointsNumber), out attemptResult))
             {
                 Console.WriteLine(TextForOutput.incorrectInput);
             }
