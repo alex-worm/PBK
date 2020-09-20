@@ -1,37 +1,26 @@
 ﻿using PBK.Entities;
-using PBK.Logic.EntityEditing;
 using PBK.Logic.TestEditing;
 using PBK.UI;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 
 namespace PBK.Logic.TestPassing
 {
     class Tester
     {
-        public async void Countdown(Test test)
-        {
-            var writer = new ConsoleOutput();
+        private const int millisecsInMinute = 60000;
 
-            await Task.Run(() => writer.ShowResult(test));
-        }
+        private static readonly CancellationTokenSource cancellToken = new CancellationTokenSource();
 
-
-
-
-
-
-        //exceptions
-
-
-
-
-
-        public void PassTest(string name)
+        public void OpenTest(string name)
         {
             var serializator = new TestSerializator();
-
+            var writer = new ConsoleOutput();
             var test = serializator.Deserialize(name);
+            var results = new Result();
+            var passAnswers = new List<string>();
 
             if (test == null)
             {
@@ -39,41 +28,77 @@ namespace PBK.Logic.TestPassing
                 return;
             }
 
-            var userCorrect = 0;
-            var userGrade = 0;
-
-            if (test.TimerValue != 0)
+            try
             {
-                Countdown(test);
-            }
+                cancellToken.CancelAfter(test.TimerValue * millisecsInMinute);
 
+                PassTest(test, results, passAnswers);
+            }
+            finally
+            {
+                Console.WriteLine(TextForOutput.passEnd);
+
+                test.PassesNumber++;
+                test.TotalCorrectAnswers += results.CorrectAnswers;
+                test.TotalIncorrectAnswers += results.IncorrectAnswers;
+
+                if (!test.ClosedQuestions)
+                {
+                    for(var i = 0; i < test.QuestionsNumber; i++)
+                    {
+                        File.WriteAllText($@"{test.Name}({test.PassesNumber}).txt", $"{test.Questions[i]}: {passAnswers[i]}");
+                    }
+                }
+
+                writer.ShowResults(results, test.GradeAvailability);
+            }
+        }
+
+        private void PassTest(Test test, Result result, List<string> passAnswers)
+        {
             test.Questions.ForEach(el =>
             {
-                Console.WriteLine(el.QuestionText);
-
-                if (AnswerIsCorrect(test, el))
+                if (cancellToken.IsCancellationRequested)
                 {
-                    userCorrect++;
-                    userGrade += el.QuestionRating;
+                    return;
+                }
+
+                var userAnswer = AnswerTheQuestion(test, el);
+
+                if (test.ClosedQuestions)
+                {
+                    if (userAnswer == el.CorrectAnswer)
+                    {
+                        result.CorrectAnswers++;
+                        result.Grade += el.QuestionRating;
+                    }
+                    else
+                    {
+                        result.IncorrectAnswers++;
+                    }
+                }
+                else
+                {
+                    passAnswers.Add(userAnswer);
+                }
+
+                if (test.IndicateCorrectAnswer)
+                {
+                    Console.WriteLine(userAnswer == el.CorrectAnswer);
                 }
             });
         }
 
-        private bool AnswerIsCorrect(Test test, Question question)
+        private string AnswerTheQuestion(Test test, Question question)
         {
-            for(var i = 0; i < question.AnswersNumber; i++)
+            Console.WriteLine(question.QuestionText);
+
+            for (var i = 0; i < question.AnswersNumber; i++)
             {
                 Console.WriteLine($"{i + 1}. {question.Answers[i]}");
             }
 
-            var userAnswer = Console.ReadLine();
-
-            if (test.IndicateCorrectAnswer)
-            {
-                Console.WriteLine(userAnswer == question.CorrectAnswer);
-            }
-
-            return userAnswer == question.CorrectAnswer;
+            return Console.ReadLine();
         }
     }
 }

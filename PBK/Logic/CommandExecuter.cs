@@ -45,7 +45,7 @@ namespace PBK.Logic
                     break;
 
                 case (int)Command.Open:
-                    testPasser.PassTest(writer.DataEntry(TextForOutput.nameToOpen));
+                    testPasser.OpenTest(writer.DataEntry(TextForOutput.nameToOpen));
                     break;
 
                 case (int)Command.DisplayStats:

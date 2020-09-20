@@ -8,7 +8,7 @@ namespace PBK.Logic.TestEditing
     {
         public async void Serialize(Test test)
         {
-            using (FileStream fstream = new FileStream($"{test.TestName}.json", FileMode.Create))
+            using (FileStream fstream = new FileStream($"{test.Name}.json", FileMode.Create))
             {
                 await JsonSerializer.SerializeAsync(fstream, test);
             }

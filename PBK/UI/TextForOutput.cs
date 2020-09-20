@@ -29,5 +29,6 @@
         public const string editClosedQuestions = "Now value of \"closed questions\" is ";
         public const string editTotalGrade = "Now value of \"total grade availability\" is ";
         public const string editQuestion = "Enter number of question to change: ";
+        public const string passEnd = "Your attempt is over";
     }
 }

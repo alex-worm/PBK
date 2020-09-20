@@ -48,7 +48,7 @@ namespace PBK.Logic.EntityEditing
             switch (parseResult)
             {
                 case (int)TestValueToEdit.Name:
-                    test.TestName = writer.DataEntry(TextForOutput.newName);
+                    test.Name = writer.DataEntry(TextForOutput.newName);
                     DeleteTest(name);
                     serializator.Serialize(test);
                     break;
@@ -73,8 +73,8 @@ namespace PBK.Logic.EntityEditing
                     break;
 
                 case (int)TestValueToEdit.IndicateGrade:
-                    test.TotalGradeAvailability = !test.TotalGradeAvailability;
-                    Console.WriteLine(TextForOutput.editIndicateAnswers + test.TotalGradeAvailability);
+                    test.GradeAvailability = !test.GradeAvailability;
+                    Console.WriteLine(TextForOutput.editIndicateAnswers + test.GradeAvailability);
                     break;
 
                 case (int)TestValueToEdit.EditQuestion:
@@ -99,7 +99,7 @@ namespace PBK.Logic.EntityEditing
 
             var test = new Test
             {
-                TestName = writer.DataEntry(TextForOutput.nameToAdd)
+                Name = writer.DataEntry(TextForOutput.nameToAdd)
             };
 
             SetTitle(test, writer);
@@ -139,7 +139,7 @@ namespace PBK.Logic.EntityEditing
             {
                 test.ClosedQuestions = false;
                 test.IndicateCorrectAnswer = false;
-                test.TotalGradeAvailability = false;
+                test.GradeAvailability = false;
             }
             else test.ClosedQuestions = true;
         }
@@ -171,7 +171,7 @@ namespace PBK.Logic.EntityEditing
                 Console.WriteLine(TextForOutput.incorrectInput);
                 SetTimerValue(test, writer);
             }
-            test.TotalGradeAvailability = result == (int)Choise.FirstChoise;
+            test.GradeAvailability = result == (int)Choise.FirstChoise;
         }
 
         private void SetTimerValue(Test test, ConsoleOutput writer)

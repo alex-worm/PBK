@@ -6,13 +6,11 @@ namespace PBK.UI
 {
     public class ConsoleOutput
     {
-        private const int millisecsInMinute = 60000;
-
         public void DisplayTopicInfo(Topic topic)
         {
             foreach(var i in topic.IncludedTests)
             {
-                Console.WriteLine($"{i.TestName} {i.PassesNumber} {i.TotalCorrectAnswers} {i.QuestionsNumber * i.PassesNumber - i.TotalCorrectAnswers}");
+                Console.WriteLine($"{i.Name} {i.PassesNumber} {i.TotalCorrectAnswers} {i.QuestionsNumber * i.PassesNumber - i.TotalCorrectAnswers}");
             }
         }
 
@@ -23,11 +21,14 @@ namespace PBK.UI
             return Console.ReadLine();
         }
 
-        public void ShowResult(Test test)
+        public void ShowResults(Result results, bool gradeAvailability)
         {
-            Thread.Sleep(test.TimerValue * millisecsInMinute);
-
-            test.Results.ForEach(el => Console.WriteLine(el));
+            Console.WriteLine($"Total correct answers: {results.CorrectAnswers}\n" +
+                $"Total incorrect answers: {results.IncorrectAnswers}");
+            if (gradeAvailability)
+            {
+                Console.WriteLine($"Total grade: {results.Grade}");
+            }
         }
     }
 }
