@@ -1,6 +1,5 @@
 ﻿using PBK.Entities;
 using System;
-using System.Threading;
 
 namespace PBK.UI
 {
@@ -21,10 +20,17 @@ namespace PBK.UI
             return Console.ReadLine();
         }
 
-        public void ShowResults(Result results, bool gradeAvailability)
+        public void ShowResults(Result results, bool closedQuestions, bool gradeAvailability, TimeSpan passTime)
         {
-            Console.WriteLine($"Total correct answers: {results.CorrectAnswers}\n" +
+            Console.WriteLine(TextForOutput.passEnd);
+            Console.WriteLine($"Pass time: {passTime}");
+
+            if (closedQuestions)
+            {
+                Console.WriteLine($"Total correct answers: {results.CorrectAnswers}\n" +
                 $"Total incorrect answers: {results.IncorrectAnswers}");
+            }
+            
             if (gradeAvailability)
             {
                 Console.WriteLine($"Total grade: {results.Grade}");

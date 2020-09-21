@@ -32,6 +32,7 @@ namespace PBK.Logic.TopicEditing
             {
                 Console.WriteLine(TextForOutput.notOpened);
             }
+
             var serializator = new TopicSerializator();
             var topic = serializator.Deserialize(name);
 

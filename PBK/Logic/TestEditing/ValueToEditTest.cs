@@ -1,6 +1,6 @@
 ﻿namespace PBK.Logic.EntityEditing
 {
-    public enum TestValueToEdit
+    public enum ValueToEditTest
     {
         Name = 1,
         Topic = 2,

@@ -26,9 +26,9 @@ namespace PBK.Logic.EntityEditing
         public void EditTest()
         {
             var writer = new ConsoleOutput();
-            var serializator = new TestSerializator();
-
             var name = writer.DataEntry(TextForOutput.nameToEdit);
+
+            var serializator = new TestSerializator();
             var test = serializator.Deserialize(name);
 
             if (test == null)
@@ -47,42 +47,42 @@ namespace PBK.Logic.EntityEditing
 
             switch (parseResult)
             {
-                case (int)TestValueToEdit.Name:
+                case (int)ValueToEditTest.Name:
                     test.Name = writer.DataEntry(TextForOutput.newName);
                     DeleteTest(name);
                     serializator.Serialize(test);
                     break;
 
-                case (int)TestValueToEdit.Topic:
+                case (int)ValueToEditTest.Topic:
                     test.TestTopic.Title = writer.DataEntry(TextForOutput.inputTopic);
                     break;
 
-                case (int)TestValueToEdit.CloseQuestions:
+                case (int)ValueToEditTest.CloseQuestions:
                     test.ClosedQuestions = !test.ClosedQuestions;
                     Console.WriteLine(TextForOutput.editClosedQuestions + test.ClosedQuestions);
                     break;
 
-                case (int)TestValueToEdit.AddQuestion:
+                case (int)ValueToEditTest.AddQuestion:
                     test.QuestionsNumber++;
                     questionEditor.InputQuestion(test, test.QuestionsNumber);
                     break;
 
-                case (int)TestValueToEdit.IndicateCorrectAnswers:
+                case (int)ValueToEditTest.IndicateCorrectAnswers:
                     test.IndicateCorrectAnswer = !test.IndicateCorrectAnswer;
                     Console.WriteLine(TextForOutput.editIndicateAnswers + test.IndicateCorrectAnswer);
                     break;
 
-                case (int)TestValueToEdit.IndicateGrade:
+                case (int)ValueToEditTest.IndicateGrade:
                     test.GradeAvailability = !test.GradeAvailability;
                     Console.WriteLine(TextForOutput.editIndicateAnswers + test.GradeAvailability);
                     break;
 
-                case (int)TestValueToEdit.EditQuestion:
+                case (int)ValueToEditTest.EditQuestion:
                     while (!int.TryParse(writer.DataEntry(TextForOutput.editQuestion), out parseResult)) ;
                     test.Questions[parseResult - 1] = questionEditor.InputQuestion(test, parseResult);
                     break;
 
-                case (int)TestValueToEdit.TimerValue:
+                case (int)ValueToEditTest.TimerValue:
                     while (!int.TryParse(writer.DataEntry(TextForOutput.timerValue), out parseResult)) ;
                     test.TimerValue = parseResult;
                     break;

@@ -3,6 +3,7 @@ using PBK.Logic.TestEditing;
 using PBK.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -10,9 +11,10 @@ namespace PBK.Logic.TestPassing
 {
     class Tester
     {
-        private const int millisecsInMinute = 60000;
+        private const int millisecsInMinute = 6000;
 
-        private static readonly CancellationTokenSource cancellToken = new CancellationTokenSource();
+        private readonly CancellationTokenSource cancellToken = new CancellationTokenSource();
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
         public void OpenTest(string name)
         {
@@ -28,34 +30,31 @@ namespace PBK.Logic.TestPassing
                 return;
             }
 
-            try
+            cancellToken.CancelAfter(test.TimerValue * millisecsInMinute);
+
+            PassTest(test, results, passAnswers);
+
+            test.PassesNumber++;
+            test.TotalCorrectAnswers += results.CorrectAnswers;
+            test.TotalIncorrectAnswers += results.IncorrectAnswers;
+
+            using (StreamWriter fileWriter = new StreamWriter($@"{test.Name}({test.PassesNumber}).txt"))
             {
-                cancellToken.CancelAfter(test.TimerValue * millisecsInMinute);
-
-                PassTest(test, results, passAnswers);
-            }
-            finally
-            {
-                Console.WriteLine(TextForOutput.passEnd);
-
-                test.PassesNumber++;
-                test.TotalCorrectAnswers += results.CorrectAnswers;
-                test.TotalIncorrectAnswers += results.IncorrectAnswers;
-
-                if (!test.ClosedQuestions)
+                for (var i = 0; i < results.CorrectAnswers + results.IncorrectAnswers; i++)
                 {
-                    for(var i = 0; i < test.QuestionsNumber; i++)
-                    {
-                        File.WriteAllText($@"{test.Name}({test.PassesNumber}).txt", $"{test.Questions[i]}: {passAnswers[i]}");
-                    }
+                    fileWriter.WriteLine($"{test.Questions[i].QuestionText}: {passAnswers[i]}");
                 }
+            }         
 
-                writer.ShowResults(results, test.GradeAvailability);
-            }
+            writer.ShowResults(results, test.ClosedQuestions, test.GradeAvailability, stopwatch.Elapsed);
+
+            serializator.Serialize(test);                
         }
 
         private void PassTest(Test test, Result result, List<string> passAnswers)
         {
+            stopwatch.Start();
+
             test.Questions.ForEach(el =>
             {
                 if (cancellToken.IsCancellationRequested)
@@ -65,28 +64,25 @@ namespace PBK.Logic.TestPassing
 
                 var userAnswer = AnswerTheQuestion(test, el);
 
-                if (test.ClosedQuestions)
+                if (userAnswer == el.CorrectAnswer)
                 {
-                    if (userAnswer == el.CorrectAnswer)
-                    {
-                        result.CorrectAnswers++;
-                        result.Grade += el.QuestionRating;
-                    }
-                    else
-                    {
-                        result.IncorrectAnswers++;
-                    }
+                    result.CorrectAnswers++;
+                    result.Grade += el.QuestionRating;
                 }
                 else
                 {
-                    passAnswers.Add(userAnswer);
+                    result.IncorrectAnswers++;
                 }
+
+                passAnswers.Add(userAnswer);
 
                 if (test.IndicateCorrectAnswer)
                 {
                     Console.WriteLine(userAnswer == el.CorrectAnswer);
                 }
             });
+
+            stopwatch.Stop();
         }
 
         private string AnswerTheQuestion(Test test, Question question)
