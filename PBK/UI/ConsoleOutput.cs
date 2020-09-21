@@ -20,21 +20,21 @@ namespace PBK.UI
             return Console.ReadLine();
         }
 
-        public void ShowResults(Result results, bool closedQuestions, bool gradeAvailability, TimeSpan passTime)
+        public void ShowTimeResult(Result result)
         {
             Console.WriteLine(TextForOutput.passEnd);
-            Console.WriteLine($"Pass time: {passTime}");
+            Console.WriteLine($"Pass time: {result.PassTime}");
+        }
 
-            if (closedQuestions)
-            {
-                Console.WriteLine($"Total correct answers: {results.CorrectAnswers}\n" +
-                $"Total incorrect answers: {results.IncorrectAnswers}");
-            }
-            
-            if (gradeAvailability)
-            {
-                Console.WriteLine($"Total grade: {results.Grade}");
-            }
+        public void ShowCorrectnessOfQAnswers(Result result)
+        {
+            Console.WriteLine($"Total correct answers: {result.CorrectAnswers}\n" +
+                $"Total incorrect answers: {result.IncorrectAnswers}");
+        }
+
+        public void ShowGrade(Result result)
+        {
+            Console.WriteLine($"Total grade: {result.Grade}");
         }
     }
 }

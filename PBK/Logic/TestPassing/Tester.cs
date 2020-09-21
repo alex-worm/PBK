@@ -11,6 +11,9 @@ namespace PBK.Logic.TestPassing
 {
     class Tester
     {
+        private delegate void ResultHandler(Result result);
+        private event ResultHandler PassEnded;
+
         private const int millisecsInMinute = 6000;
 
         private readonly CancellationTokenSource cancellToken = new CancellationTokenSource();
@@ -21,7 +24,7 @@ namespace PBK.Logic.TestPassing
             var serializator = new TestSerializator();
             var writer = new ConsoleOutput();
             var test = serializator.Deserialize(name);
-            var results = new Result();
+            var result = new Result();
             var passAnswers = new List<string>();
 
             if (test == null)
@@ -32,21 +35,33 @@ namespace PBK.Logic.TestPassing
 
             cancellToken.CancelAfter(test.TimerValue * millisecsInMinute);
 
-            PassTest(test, results, passAnswers);
+            PassTest(test, result, passAnswers);
 
             test.PassesNumber++;
-            test.TotalCorrectAnswers += results.CorrectAnswers;
-            test.TotalIncorrectAnswers += results.IncorrectAnswers;
+            test.TotalCorrectAnswers += result.CorrectAnswers;
+            test.TotalIncorrectAnswers += result.IncorrectAnswers;
 
             using (StreamWriter fileWriter = new StreamWriter($@"{test.Name}({test.PassesNumber}).txt"))
             {
-                for (var i = 0; i < results.CorrectAnswers + results.IncorrectAnswers; i++)
+                for (var i = 0; i < result.CorrectAnswers + result.IncorrectAnswers; i++)
                 {
                     fileWriter.WriteLine($"{test.Questions[i].QuestionText}: {passAnswers[i]}");
                 }
-            }         
+            }
 
-            writer.ShowResults(results, test.ClosedQuestions, test.GradeAvailability, stopwatch.Elapsed);
+            PassEnded = writer.ShowTimeResult;
+
+            if (test.ClosedQuestions)
+            {
+                PassEnded += writer.ShowCorrectnessOfQAnswers;
+            }
+
+            if (test.GradeAvailability)
+            {
+                PassEnded += writer.ShowGrade;
+            }
+
+            PassEnded?.Invoke(result);
 
             serializator.Serialize(test);                
         }

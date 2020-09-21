@@ -1,4 +1,6 @@
-﻿namespace PBK.Entities
+﻿using System;
+
+namespace PBK.Entities
 {
     public class Result
     {
@@ -8,6 +10,8 @@
             IncorrectAnswers = 0;
             Grade = 0;
         }
+
+        public TimeSpan PassTime { get; set; }
 
         public int CorrectAnswers { get; set; }
 
