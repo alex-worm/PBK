@@ -1,67 +1,73 @@
-﻿using System;
-using System.IO;
-using System.Text.Json;
-using PBK.Entities;
+﻿using System.IO;
 using PBK.UI;
 
 namespace PBK.Logic.TopicEditing
 {
-    class TopicTool
+    public class TopicTool
     {
-        private static Topic _topic;
-
-        private static bool CheckFileExistence(string fileName)
+        public void DeleteTopic(string name)
         {
-            if (File.Exists(fileName))
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
+
+            var topic = topicSerializer.Deserialize(name);
+
+            if (topic == null)
             {
-                return true;
-            }
-            return false;
-        }
+                writer.PrintMessage(TextForOutput.IncorrectInput);
 
-        public static void DeleteTopic(string fileName)
-        {          
-            if (!CheckFileExistence(fileName))
-            {
-                Console.WriteLine(TextForOutput.notOpened);
-            }
-
-            File.Delete(fileName);
-            Console.WriteLine(TextForOutput.fileDeleted);
-        }
-
-        public static void DisplaySummary(string name)
-        {
-            if (!CheckFileExistence(name))
-            {
-                Console.WriteLine(TextForOutput.notOpened);
-            }
-
-            _topic = Read(name);
-
-            if (_topic == null)
-            {
-                Console.WriteLine(TextForOutput.notOpened);
                 return;
             }
 
-            Writer.DisplayTopicInfo(_topic);
+            foreach (var test in topic.IncludedTests)
+            {
+                File.Delete($"{test.Name}.json");
+            }
+
+            File.Delete($"TOPIC {topic.Title}.json");
+
+            writer.PrintMessage(TextForOutput.FileDeleted);
         }
 
-        private static async void Write(Topic topic)
+        public void AddSubtopic(string name)
         {
-            using (FileStream fstream = new FileStream($"TOPIC {topic.Title}.json", FileMode.Create))
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
+
+            var topic = topicSerializer.Deserialize(name);
+
+            if (topic == null)
             {
-                await JsonSerializer.SerializeAsync(fstream, topic);
+                writer.PrintMessage(TextForOutput.NotOpened);
+                return;
             }
+
+            var subtopic = topicSerializer.Deserialize(writer.GetInput(TextForOutput.AddSubtopic));
+
+            topic.Subtopics.Add(subtopic);
+
+            topicSerializer.Serialize(topic);
         }
 
-        private static Topic Read(string fileName)
+        public void DisplaySummary(string name)
         {
-            using (FileStream fstream = new FileStream($"{fileName}.json", FileMode.OpenOrCreate))
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
+
+            var topic = topicSerializer.Deserialize(name);
+
+            if (topic == null)
             {
-                return JsonSerializer.DeserializeAsync<Topic>(fstream).Result;
+                writer.PrintMessage(TextForOutput.NotOpened);
+                return;
             }
+
+            foreach (var subtopic in topic.Subtopics)
+            {
+                subtopic.IncludedTests.ForEach(el => topic.IncludedTests.Add(el));
+            }
+
+            writer.PrintTopicStats(topic);
         }
     }
 }
