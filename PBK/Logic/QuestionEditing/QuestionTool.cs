@@ -4,46 +4,48 @@ using System;
 
 namespace PBK.Logic.QuestionEditing
 {
-    class QuestionTool
+    public class QuestionTool
     {
         public Question InputQuestion(Test test, int questionNumber)
         {
             var writer = new ConsoleOutput();
 
-            Question newQuestion = new Question
+            var newQuestion = new Question
             {
-                QuestionText = writer.DataEntry(TextForOutput.questionText),
+                QuestionText = writer.GetInput(TextForOutput.QuestionText),
                 QuestionNumber = questionNumber
             };
 
-            if (test.ClosedQuestions)
+            if (test.IsClosedQuestions)
             {
-                SetUpClosedQuestion(newQuestion, writer);
+                SetUpClosedQuestion(newQuestion, test.IsGradeAvailable);
             }
 
             return newQuestion;
         }
 
-        private void SetUpClosedQuestion(Question question, ConsoleOutput writer)
+        private void SetUpClosedQuestion(Question question, bool needGrade)
         {
             int attemptResult;
+            var writer = new ConsoleOutput();
 
-            while (!int.TryParse(writer.DataEntry(TextForOutput.answersNumber), out attemptResult))
+            while (!int.TryParse(writer.GetInput(TextForOutput.AnswersNumber), out attemptResult))
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
+                Console.WriteLine(TextForOutput.IncorrectInput);
             }
             question.AnswersNumber = attemptResult;
 
             for (var i = 0; i < question.AnswersNumber; i++)
             {
-                question.Answers.Add(writer.DataEntry(TextForOutput.enterAnswer));
+                question.Answers.Add(writer.GetInput(TextForOutput.EnterAnswer));
             }
 
-            question.CorrectAnswer = writer.DataEntry(TextForOutput.correctAnswer);
+            question.CorrectAnswer = writer.GetInput(TextForOutput.CorrectAnswer);
 
-            while (!int.TryParse(writer.DataEntry(TextForOutput.pointsNumber), out attemptResult))
+            if (!needGrade) return;
+            while (!int.TryParse(writer.GetInput(TextForOutput.PointsNumber), out attemptResult))
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
+                Console.WriteLine(TextForOutput.IncorrectInput);
             }
             question.QuestionRating = attemptResult;
         }

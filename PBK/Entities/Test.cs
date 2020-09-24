@@ -2,7 +2,7 @@
 
 namespace PBK.Entities
 {
-    public class Test
+    public class Test : BriefTestInfo
     {
         private int _timerValue;
         private int _questionsNumber;
@@ -10,15 +10,7 @@ namespace PBK.Entities
         public Test()
         {
             Questions = new List<Question>();
-            TestTopic = new Topic
-            {
-                Subtopics = new List<Topic>()
-            };
         }
-
-        public string Name { get; set; }
-
-        public Topic TestTopic { get; set; }
 
         public int QuestionsNumber
         {
@@ -28,11 +20,11 @@ namespace PBK.Entities
                 : default;
         }
 
-        public bool ClosedQuestions { get; set; }
+        public bool IsClosedQuestions { get; set; }
 
         public List<Question> Questions { get; set; }
 
-        public bool IndicateCorrectAnswer { get; set; }
+        public bool IsIndicateAnswer { get; set; }
 
         public int TimerValue
         {
@@ -42,12 +34,6 @@ namespace PBK.Entities
                 : default;
         }
 
-        public bool GradeAvailability { get; set; }
-
-        public int TotalCorrectAnswers { get; set; }
-
-        public int TotalIncorrectAnswers { get; set; }
-
-        public int PassesNumber { get; set; }
+        public bool IsGradeAvailable { get; set; }
     }
 }

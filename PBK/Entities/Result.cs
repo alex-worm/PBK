@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PBK.Entities
 {
@@ -9,6 +10,8 @@ namespace PBK.Entities
             CorrectAnswers = 0;
             IncorrectAnswers = 0;
             Grade = 0;
+
+            UserAnswers=new List<string>();
         }
 
         public TimeSpan PassTime { get; set; }
@@ -18,5 +21,7 @@ namespace PBK.Entities
         public int IncorrectAnswers { get; set; }
 
         public int Grade { get; set; }
+
+        public List<string> UserAnswers { get; set; }
     }
 }

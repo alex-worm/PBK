@@ -1,14 +1,10 @@
-﻿namespace PBK.Logic.EntityEditing
+﻿namespace PBK.Logic.TestEditing
 {
     public enum ValueToEditTest
     {
         Name = 1,
-        Topic = 2,
-        CloseQuestions = 3,
-        AddQuestion = 4,
-        IndicateCorrectAnswers = 5,
-        IndicateGrade = 6,
-        EditQuestion = 7,
-        TimerValue = 8
+        AddQuestion = 2,
+        EditQuestion = 3,
+        TimerValue = 4
     }
 }

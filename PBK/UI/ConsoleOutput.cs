@@ -5,36 +5,41 @@ namespace PBK.UI
 {
     public class ConsoleOutput
     {
-        public void DisplayTopicInfo(Topic topic)
+        public void PrintMessage(string message)
         {
-            foreach(var i in topic.IncludedTests)
-            {
-                Console.WriteLine($"{i.Name} {i.PassesNumber} {i.TotalCorrectAnswers} {i.QuestionsNumber * i.PassesNumber - i.TotalCorrectAnswers}");
-            }
+            Console.WriteLine(message);
         }
 
-        public string DataEntry(string message)
+        public string GetInput(string message)
         {
             Console.Write(message);
 
             return Console.ReadLine();
         }
 
-        public void ShowTimeResult(Result result)
+        public void PrintTimeResult(Result result)
         {
-            Console.WriteLine(TextForOutput.passEnd);
+            Console.WriteLine(TextForOutput.PassEnd);
             Console.WriteLine($"Pass time: {result.PassTime}");
         }
 
-        public void ShowCorrectnessOfQAnswers(Result result)
+        public void PrintAnswersCorrectness(Result result)
         {
             Console.WriteLine($"Total correct answers: {result.CorrectAnswers}\n" +
-                $"Total incorrect answers: {result.IncorrectAnswers}");
+                              $"Total incorrect answers: {result.IncorrectAnswers}");
         }
 
-        public void ShowGrade(Result result)
+        public void PrintGrade(Result result)
         {
             Console.WriteLine($"Total grade: {result.Grade}");
+        }
+
+        public void PrintTopicStats(Topic topic)
+        {
+            topic.IncludedTests.ForEach(el =>
+            {
+                PrintMessage($"{el.Name} {el.PassesNumber} {el.TotalCorrectAnswers} {el.TotalIncorrectAnswers}");
+            });
         }
     }
 }

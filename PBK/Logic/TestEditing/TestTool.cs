@@ -1,45 +1,54 @@
-﻿using PBK.UI;
+﻿using System.IO;
 using PBK.Entities;
-using System;
-using System.IO;
 using PBK.Logic.QuestionEditing;
-using PBK.Logic.TestEditing;
+using PBK.Logic.TopicEditing;
+using PBK.UI;
 
-namespace PBK.Logic.EntityEditing
+namespace PBK.Logic.TestEditing
 {
     public class TestTool
     {
         public void DeleteTest(string name)
         {
-            string fileName = $"{name}.json";
-
-            if (!File.Exists(fileName))
-            {
-                Console.WriteLine(TextForOutput.notOpened);
-                return;
-            }
-
-            File.Delete(fileName);
-            Console.WriteLine(TextForOutput.fileDeleted);
-        }
-
-        public void EditTest()
-        {
             var writer = new ConsoleOutput();
-            var name = writer.DataEntry(TextForOutput.nameToEdit);
+            var testSerializer = new TestSerializer();
+            var topicSerializer = new TopicSerializer();
 
-            var serializator = new TestSerializator();
-            var test = serializator.Deserialize(name);
+            var test = testSerializer.Deserialize(name);
 
             if (test == null)
             {
-                Console.WriteLine(TextForOutput.notOpened);
+                writer.PrintMessage(TextForOutput.IncorrectInput);
+
                 return;
             }
 
-            if (!int.TryParse(writer.DataEntry(TextForOutput.valueToChange), out int parseResult))
+            var topic = topicSerializer.Deserialize(test.TopicName);
+
+            topic.IncludedTests.Remove(topic.IncludedTests.Find(el => el.Name == test.Name));
+            topicSerializer.Serialize(topic);
+
+            File.Delete($"{test.Name}.json");
+
+            writer.PrintMessage(TextForOutput.FileDeleted);
+        }
+
+        public void EditTest(string name)
+        {
+            var writer = new ConsoleOutput();
+
+            var testSerializer = new TestSerializer();
+            var test = testSerializer.Deserialize(name);
+
+            if (test == null)
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
+                writer.PrintMessage(TextForOutput.IncorrectInput);
+                return;
+            }
+
+            if (!int.TryParse(writer.GetInput(TextForOutput.ValueToChange), out var parseResult))
+            {
+                writer.PrintMessage(TextForOutput.IncorrectInput);
                 return;
             }
 
@@ -48,18 +57,9 @@ namespace PBK.Logic.EntityEditing
             switch (parseResult)
             {
                 case (int)ValueToEditTest.Name:
-                    test.Name = writer.DataEntry(TextForOutput.newName);
+                    test.Name = writer.GetInput(TextForOutput.NewName);
                     DeleteTest(name);
-                    serializator.Serialize(test);
-                    break;
-
-                case (int)ValueToEditTest.Topic:
-                    test.TestTopic.Title = writer.DataEntry(TextForOutput.inputTopic);
-                    break;
-
-                case (int)ValueToEditTest.CloseQuestions:
-                    test.ClosedQuestions = !test.ClosedQuestions;
-                    Console.WriteLine(TextForOutput.editClosedQuestions + test.ClosedQuestions);
+                    testSerializer.Serialize(test);
                     break;
 
                 case (int)ValueToEditTest.AddQuestion:
@@ -67,49 +67,43 @@ namespace PBK.Logic.EntityEditing
                     questionEditor.InputQuestion(test, test.QuestionsNumber);
                     break;
 
-                case (int)ValueToEditTest.IndicateCorrectAnswers:
-                    test.IndicateCorrectAnswer = !test.IndicateCorrectAnswer;
-                    Console.WriteLine(TextForOutput.editIndicateAnswers + test.IndicateCorrectAnswer);
-                    break;
-
-                case (int)ValueToEditTest.IndicateGrade:
-                    test.GradeAvailability = !test.GradeAvailability;
-                    Console.WriteLine(TextForOutput.editIndicateAnswers + test.GradeAvailability);
-                    break;
-
                 case (int)ValueToEditTest.EditQuestion:
-                    while (!int.TryParse(writer.DataEntry(TextForOutput.editQuestion), out parseResult)) ;
+                    while (!int.TryParse(writer.GetInput(TextForOutput.EditQuestion), out parseResult))
+                    {
+                        writer.PrintMessage(TextForOutput.IncorrectInput);
+                    }
                     test.Questions[parseResult - 1] = questionEditor.InputQuestion(test, parseResult);
                     break;
 
                 case (int)ValueToEditTest.TimerValue:
-                    while (!int.TryParse(writer.DataEntry(TextForOutput.timerValue), out parseResult)) ;
-                    test.TimerValue = parseResult;
+                    SetTimerValue(test);
                     break;
-                    
             }
 
-            serializator.Serialize(test);
+            testSerializer.Serialize(test);
         }
 
-        public void CreateNewTest()
+        public void CreateNewTest(string name)
         {
             var writer = new ConsoleOutput();
-            var serializator = new TestSerializator();
+            var testSerializer = new TestSerializer();
+            var topicSerializer = new TopicSerializer();
 
             var test = new Test
             {
-                Name = writer.DataEntry(TextForOutput.nameToAdd)
+                Name = name
             };
 
-            SetTitle(test, writer);
-            CloseQuestions(test, writer);
-            SetQuestionsNumber(test, writer);
+            var testTopic = SetTitle(test, writer);
+            testTopic.IncludedTests.Add(test);
 
-            if (test.ClosedQuestions)
+            CloseQuestions(test);
+            SetQuestionsNumber(test);
+
+            if (test.IsClosedQuestions)
             {
-                IndicateAnswers(test, writer);
-                IndicateGrade(test, writer);
+                IndicateAnswers(test);
+                IndicateGrade(test);
             }
 
             var questionEditor = new QuestionTool();
@@ -119,69 +113,117 @@ namespace PBK.Logic.EntityEditing
                 test.Questions.Add(questionEditor.InputQuestion(test, i));
             }
 
-            SetTimerValue(test, writer);
+            SetTimerValue(test);
 
-            serializator.Serialize(test);
+            testSerializer.Serialize(test);
+            topicSerializer.Serialize(testTopic);
         }
 
-        private void SetTitle(Test test, ConsoleOutput writer) => test.TestTopic.Title = writer.DataEntry(TextForOutput.inputTopic);
-
-        private void CloseQuestions(Test test, ConsoleOutput writer)
+        private Topic SetTitle(BriefTestInfo test, ConsoleOutput writer)
         {
-            if (!int.TryParse(writer.DataEntry(TextForOutput.closedQuestions), out var result))
+            var topic = new Topic()
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
+                Title = writer.GetInput(TextForOutput.InputTopic)
+            };
 
-                CloseQuestions(test, writer);
-            }
+            test.TopicName = topic.Title;
 
-            if (result == (int)Choise.SecondChoise)
-            {
-                test.ClosedQuestions = false;
-                test.IndicateCorrectAnswer = false;
-                test.GradeAvailability = false;
-            }
-            else test.ClosedQuestions = true;
+            return topic;
         }
 
-        private void SetQuestionsNumber(Test test, ConsoleOutput writer)
+        private void CloseQuestions(Test test)
         {
-            if (!int.TryParse(writer.DataEntry(TextForOutput.questionsNumber), out var result))
+            var writer = new ConsoleOutput();
+
+            int.TryParse(writer.GetInput(TextForOutput.ClosedQuestions), out var result);
+
+            switch (result)
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
-                SetQuestionsNumber(test, writer);
+                case (int)Choice.First:
+                    test.IsClosedQuestions = true;
+                    break;
+
+                case (int)Choice.Second:
+                    test.IsClosedQuestions = false;
+                    test.IsIndicateAnswer = false;
+                    test.IsGradeAvailable = false;
+                    break;
+
+                default:
+                    writer.PrintMessage(TextForOutput.IncorrectInput);
+                    CloseQuestions(test);
+                    break;
             }
-            test.QuestionsNumber = result;
         }
 
-        private void IndicateAnswers(Test test, ConsoleOutput writer)
+        private void SetQuestionsNumber(Test test)
         {
-            if (!int.TryParse(writer.DataEntry(TextForOutput.indicateAnswers), out var result) && result > 0 && result < 3)
+            var writer = new ConsoleOutput();
+
+            if(!int.TryParse(writer.GetInput(TextForOutput.QuestionsNumber), out var result))
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
-                SetTimerValue(test, writer);
+                writer.PrintMessage(TextForOutput.IncorrectInput);
+                SetQuestionsNumber(test);
             }
-            test.IndicateCorrectAnswer = result == (int)Choise.FirstChoise;
+            else test.QuestionsNumber = result;
         }
 
-        private void IndicateGrade(Test test, ConsoleOutput writer)
+        private void IndicateAnswers(Test test)
         {
-            if (!int.TryParse(writer.DataEntry(TextForOutput.totalGrade), out var result) && result > 0 && result < 3)
+            var writer = new ConsoleOutput();
+
+            int.TryParse(writer.GetInput(TextForOutput.IndicateAnswers), out var result);
+
+            switch (result)
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
-                SetTimerValue(test, writer);
+                case (int)Choice.First:
+                    test.IsIndicateAnswer = true;
+                    break;
+
+                case (int)Choice.Second:
+                    test.IsIndicateAnswer = false;
+                    break;
+
+                default:
+                    writer.PrintMessage(TextForOutput.IncorrectInput);
+                    IndicateAnswers(test);
+                    break;
             }
-            test.GradeAvailability = result == (int)Choise.FirstChoise;
         }
 
-        private void SetTimerValue(Test test, ConsoleOutput writer)
+        private void IndicateGrade(Test test)
         {
-            if (!int.TryParse(writer.DataEntry(TextForOutput.timerValue), out var result))
+            var writer = new ConsoleOutput();
+
+            int.TryParse(writer.GetInput(TextForOutput.TotalGrade), out var result);
+
+            switch (result)
             {
-                Console.WriteLine(TextForOutput.incorrectInput);
-                SetTimerValue(test, writer);
+                case (int)Choice.First:
+                    test.IsGradeAvailable = true;
+                    break;
+
+                case (int)Choice.Second:
+                    test.IsGradeAvailable = false;
+                    break;
+
+                default:
+                    writer.PrintMessage(TextForOutput.IncorrectInput);
+                    IndicateGrade(test);
+                    break;
             }
-            test.TimerValue = result;
+        }
+
+        private void SetTimerValue(Test test)
+        {
+            var writer = new ConsoleOutput();
+
+            if (!int.TryParse(writer.GetInput(TextForOutput.TimerValue), out var result))
+            {
+                writer.PrintMessage(TextForOutput.IncorrectInput);
+                SetTimerValue(test);
+            }
+            else test.TimerValue = result;
         }
     }
 }

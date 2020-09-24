@@ -2,82 +2,61 @@
 using PBK.Logic.TestEditing;
 using PBK.UI;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using PBK.Logic.TopicEditing;
 
 namespace PBK.Logic.TestPassing
 {
-    class Tester
+    public class Tester
     {
         private delegate void ResultHandler(Result result);
         private event ResultHandler PassEnded;
 
-        private const int millisecsInMinute = 6000;
+        private const int mlSecsInMinute = 60000;
 
-        private readonly CancellationTokenSource cancellToken = new CancellationTokenSource();
-        private readonly Stopwatch stopwatch = new Stopwatch();
+        private readonly CancellationTokenSource _cancelToken = new CancellationTokenSource();
 
-        public void OpenTest(string name)
+        public void PassTest(string name)
         {
-            var serializator = new TestSerializator();
+            var testSerializer = new TestSerializer();
             var writer = new ConsoleOutput();
-            var test = serializator.Deserialize(name);
             var result = new Result();
-            var passAnswers = new List<string>();
+
+            var test = testSerializer.Deserialize(name);
 
             if (test == null)
             {
-                Console.WriteLine(TextForOutput.notOpened);
+                writer.PrintMessage(TextForOutput.NotOpened);
                 return;
             }
 
-            cancellToken.CancelAfter(test.TimerValue * millisecsInMinute);
-
-            PassTest(test, result, passAnswers);
-
-            test.PassesNumber++;
-            test.TotalCorrectAnswers += result.CorrectAnswers;
-            test.TotalIncorrectAnswers += result.IncorrectAnswers;
-
-            using (StreamWriter fileWriter = new StreamWriter($@"{test.Name}({test.PassesNumber}).txt"))
+            if (test.TimerValue != 0)
             {
-                for (var i = 0; i < result.CorrectAnswers + result.IncorrectAnswers; i++)
-                {
-                    fileWriter.WriteLine($"{test.Questions[i].QuestionText}: {passAnswers[i]}");
-                }
+                _cancelToken.CancelAfter(test.TimerValue * mlSecsInMinute);
             }
 
-            PassEnded = writer.ShowTimeResult;
+            GetPassResults(test, result);
 
-            if (test.ClosedQuestions)
-            {
-                PassEnded += writer.ShowCorrectnessOfQAnswers;
-            }
-
-            if (test.GradeAvailability)
-            {
-                PassEnded += writer.ShowGrade;
-            }
-
-            PassEnded?.Invoke(result);
-
-            serializator.Serialize(test);                
+            OutputResults(test, result);
         }
 
-        private void PassTest(Test test, Result result, List<string> passAnswers)
+        private void GetPassResults(Test test, Result result)
         {
+            var writer = new ConsoleOutput();
+            var stopwatch = new Stopwatch();
+
             stopwatch.Start();
 
             test.Questions.ForEach(el =>
             {
-                if (cancellToken.IsCancellationRequested)
+                if (_cancelToken.IsCancellationRequested)
                 {
                     return;
                 }
 
-                var userAnswer = AnswerTheQuestion(test, el);
+                var userAnswer = AnswerTheQuestion(el);
 
                 if (userAnswer == el.CorrectAnswer)
                 {
@@ -89,27 +68,73 @@ namespace PBK.Logic.TestPassing
                     result.IncorrectAnswers++;
                 }
 
-                passAnswers.Add(userAnswer);
+                result.UserAnswers.Add(userAnswer);
 
-                if (test.IndicateCorrectAnswer)
+                if (test.IsIndicateAnswer)
                 {
-                    Console.WriteLine(userAnswer == el.CorrectAnswer);
+                    writer.PrintMessage((userAnswer == el.CorrectAnswer).ToString());
                 }
             });
 
             stopwatch.Stop();
+            result.PassTime = stopwatch.Elapsed;
         }
 
-        private string AnswerTheQuestion(Test test, Question question)
+        private string AnswerTheQuestion(Question question)
         {
-            Console.WriteLine(question.QuestionText);
+            var writer = new ConsoleOutput();
+
+            writer.PrintMessage(question.QuestionText);
 
             for (var i = 0; i < question.AnswersNumber; i++)
             {
-                Console.WriteLine($"{i + 1}. {question.Answers[i]}");
+                writer.PrintMessage($"{i + 1}. {question.Answers[i]}");
             }
 
             return Console.ReadLine();
+        }
+
+        private void OutputResults(Test test, Result result)
+        {
+            var writer = new ConsoleOutput();
+            var testSerializer = new TestSerializer();
+            var topicSerializer = new TopicSerializer();
+
+            test.PassesNumber++;
+            test.TotalCorrectAnswers += result.CorrectAnswers;
+            test.TotalIncorrectAnswers += result.IncorrectAnswers;
+
+            using (var fileWriter = new StreamWriter($@"{test.Name}({test.PassesNumber}).txt"))
+            {
+                for (var i = 0; i < result.CorrectAnswers + result.IncorrectAnswers; i++)
+                {
+                    fileWriter.WriteLine($"{test.Questions[i].QuestionText}: {result.UserAnswers[i]}");
+                }
+            }
+
+            PassEnded = writer.PrintTimeResult;
+
+            if (test.IsClosedQuestions)
+            {
+                PassEnded += writer.PrintAnswersCorrectness;
+            }
+
+            if (test.IsGradeAvailable)
+            {
+                PassEnded += writer.PrintGrade;
+            }
+
+            PassEnded?.Invoke(result);
+
+            testSerializer.Serialize(test);
+
+            var topic = topicSerializer.Deserialize(test.TopicName);
+
+            topic.IncludedTests.Find(el => el.Name == test.Name).PassesNumber = test.PassesNumber;
+            topic.IncludedTests.Find(el => el.Name == test.Name).TotalCorrectAnswers = test.TotalCorrectAnswers;
+            topic.IncludedTests.Find(el => el.Name == test.Name).TotalIncorrectAnswers = test.TotalIncorrectAnswers;
+
+            topicSerializer.Serialize(topic);
         }
     }
 }

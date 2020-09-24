@@ -1,50 +1,73 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using PBK.UI;
 
 namespace PBK.Logic.TopicEditing
 {
-    class TopicTool
+    public class TopicTool
     {
-        private static bool CheckFileExistence(string fileName)
+        public void DeleteTopic(string name)
         {
-            if (File.Exists(fileName))
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
+
+            var topic = topicSerializer.Deserialize(name);
+
+            if (topic == null)
             {
-                return true;
+                writer.PrintMessage(TextForOutput.IncorrectInput);
+
+                return;
             }
-            return false;
+
+            foreach (var test in topic.IncludedTests)
+            {
+                File.Delete($"{test.Name}.json");
+            }
+
+            File.Delete($"TOPIC {topic.Title}.json");
+
+            writer.PrintMessage(TextForOutput.FileDeleted);
         }
 
-        public static void DeleteTopic(string fileName)
-        {          
-            if (!CheckFileExistence(fileName))
+        public void AddSubtopic(string name)
+        {
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
+
+            var topic = topicSerializer.Deserialize(name);
+
+            if (topic == null)
             {
-                Console.WriteLine(TextForOutput.notOpened);
+                writer.PrintMessage(TextForOutput.NotOpened);
+                return;
             }
 
-            File.Delete(fileName);
-            Console.WriteLine(TextForOutput.fileDeleted);
+            var subtopic = topicSerializer.Deserialize(writer.GetInput(TextForOutput.AddSubtopic));
+
+            topic.Subtopics.Add(subtopic);
+
+            topicSerializer.Serialize(topic);
         }
 
         public void DisplaySummary(string name)
         {
-            if (!CheckFileExistence(name))
-            {
-                Console.WriteLine(TextForOutput.notOpened);
-            }
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
 
-            var serializator = new TopicSerializator();
-            var topic = serializator.Deserialize(name);
+            var topic = topicSerializer.Deserialize(name);
 
             if (topic == null)
             {
-                Console.WriteLine(TextForOutput.notOpened);
+                writer.PrintMessage(TextForOutput.NotOpened);
                 return;
             }
 
-            var writer = new ConsoleOutput();
+            foreach (var subtopic in topic.Subtopics)
+            {
+                subtopic.IncludedTests.ForEach(el => topic.IncludedTests.Add(el));
+            }
 
-            writer.DisplayTopicInfo(topic);
+            writer.PrintTopicStats(topic);
         }
     }
 }
