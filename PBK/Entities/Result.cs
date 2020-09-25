@@ -11,7 +11,7 @@ namespace PBK.Entities
             IncorrectAnswers = 0;
             Grade = 0;
 
-            UserAnswers=new List<string>();
+            UserAnswers = new List<string>();
         }
 
         public TimeSpan PassTime { get; set; }

@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PBK.Logic.TopicEditing
 {
-    public class TopicSerializer : ISerializator<Topic>
+    public class TopicSerializer : ISerializer<Topic>
     {
         public async void Serialize(Topic topic)
         {

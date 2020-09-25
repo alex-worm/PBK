@@ -18,7 +18,7 @@ namespace PBK.Entities
 
         public static Topic operator +(Topic topic, Topic subtopic)
         {
-            subtopic.IncludedTests.ForEach(el=>topic.IncludedTests.Add(el));
+            subtopic.IncludedTests.ForEach(el => topic.IncludedTests.Add(el));
 
             return topic;
         }

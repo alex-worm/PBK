@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PBK.Logic.TestEditing
 {
-    public class TestSerializer : ISerializator<Test>
+    public class TestSerializer : ISerializer<Test>
     {
         public async void Serialize(Test test)
         {

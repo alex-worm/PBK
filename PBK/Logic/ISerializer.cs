@@ -1,6 +1,6 @@
 ﻿namespace PBK.Logic
 {
-    public interface ISerializator <T>
+    public interface ISerializer<T>
     {
         void Serialize(T entity);
 

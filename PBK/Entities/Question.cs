@@ -23,7 +23,7 @@ namespace PBK.Entities
         public int AnswersNumber
         {
             get => _answersNumber;
-            set=> _answersNumber = value >=0
+            set => _answersNumber = value >= 0
                 ? value
                 : default;
         }

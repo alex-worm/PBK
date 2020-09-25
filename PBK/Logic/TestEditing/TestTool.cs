@@ -1,8 +1,8 @@
-﻿using System.IO;
-using PBK.Entities;
+﻿using PBK.Entities;
 using PBK.Logic.QuestionEditing;
 using PBK.Logic.TopicEditing;
 using PBK.UI;
+using System.IO;
 
 namespace PBK.Logic.TestEditing
 {
@@ -173,7 +173,7 @@ namespace PBK.Logic.TestEditing
         {
             var writer = new ConsoleOutput();
 
-            if(!int.TryParse(writer.GetInput(TextForOutput.QuestionsNumber), out var result))
+            if (!int.TryParse(writer.GetInput(TextForOutput.QuestionsNumber), out var result))
             {
                 writer.PrintMessage(TextForOutput.IncorrectInput);
                 SetQuestionsNumber(test);
