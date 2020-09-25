@@ -15,5 +15,12 @@ namespace PBK.Entities
         public List<Topic> Subtopics { get; set; }
 
         public List<BriefTestInfo> IncludedTests { get; set; }
+
+        public static Topic operator +(Topic topic, Topic subtopic)
+        {
+            subtopic.IncludedTests.ForEach(el=>topic.IncludedTests.Add(el));
+
+            return topic;
+        }
     }
 }

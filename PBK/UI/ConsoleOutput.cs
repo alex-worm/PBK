@@ -38,7 +38,7 @@ namespace PBK.UI
         {
             topic.IncludedTests.ForEach(el =>
             {
-                PrintMessage($"{el.Name} {el.PassesNumber} {el.TotalCorrectAnswers} {el.TotalIncorrectAnswers}");
+                PrintMessage(el.ToString());
             });
         }
     }

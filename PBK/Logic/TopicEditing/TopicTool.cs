@@ -62,10 +62,7 @@ namespace PBK.Logic.TopicEditing
                 return;
             }
 
-            foreach (var subtopic in topic.Subtopics)
-            {
-                subtopic.IncludedTests.ForEach(el => topic.IncludedTests.Add(el));
-            }
+            topic.Subtopics.ForEach(el => topic += el);
 
             writer.PrintTopicStats(topic);
         }
