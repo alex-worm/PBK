@@ -19,10 +19,10 @@ namespace PBK.Logic.TopicEditing
                 return;
             }
 
-            foreach (var test in topic.IncludedTests)
+            topic.IncludedTests.ForEach(el =>
             {
-                File.Delete($"{test.Name}.json");
-            }
+                File.Delete($"{el.Name}.json");
+            });
 
             File.Delete($"TOPIC {topic.Title}.json");
 
@@ -42,7 +42,8 @@ namespace PBK.Logic.TopicEditing
                 return;
             }
 
-            var subtopic = topicSerializer.Deserialize(writer.GetInput(TextForOutput.AddSubtopic));
+            var subtopic = topicSerializer
+                .Deserialize(writer.GetInput(TextForOutput.AddSubtopic));
 
             topic.Subtopics.Add(subtopic);
 

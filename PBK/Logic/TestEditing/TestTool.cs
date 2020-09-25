@@ -18,7 +18,7 @@ namespace PBK.Logic.TestEditing
 
             if (test == null)
             {
-                writer.PrintMessage(TextForOutput.IncorrectInput);
+                writer.PrintMessage(TextForOutput.NotOpened);
 
                 return;
             }
@@ -64,7 +64,7 @@ namespace PBK.Logic.TestEditing
 
                 case (int)ValueToEditTest.AddQuestion:
                     test.QuestionsNumber++;
-                    questionEditor.InputQuestion(test, test.QuestionsNumber);
+                    questionEditor.GetQuestion(test, test.QuestionsNumber);
                     break;
 
                 case (int)ValueToEditTest.EditQuestion:
@@ -72,12 +72,16 @@ namespace PBK.Logic.TestEditing
                     {
                         writer.PrintMessage(TextForOutput.IncorrectInput);
                     }
-                    test.Questions[parseResult - 1] = questionEditor.InputQuestion(test, parseResult);
+                    test.Questions[parseResult - 1] = questionEditor.GetQuestion(test, parseResult);
                     break;
 
                 case (int)ValueToEditTest.TimerValue:
                     SetTimerValue(test);
                     break;
+
+                default:
+                    writer.PrintMessage(TextForOutput.IncorrectInput);
+                    return;
             }
 
             testSerializer.Serialize(test);
@@ -85,32 +89,30 @@ namespace PBK.Logic.TestEditing
 
         public void CreateNewTest(string name)
         {
-            var writer = new ConsoleOutput();
             var testSerializer = new TestSerializer();
             var topicSerializer = new TopicSerializer();
+            var questionEditor = new QuestionTool();
 
             var test = new Test
             {
                 Name = name
             };
 
-            var testTopic = SetTitle(test, writer);
+            var testTopic = SetTopic(test);
             testTopic.IncludedTests.Add(test);
 
-            CloseQuestions(test);
+            SetQuestionsCloseness(test);
             SetQuestionsNumber(test);
 
             if (test.IsClosedQuestions)
             {
-                IndicateAnswers(test);
-                IndicateGrade(test);
+                SetRightAnswerIndication(test);
+                SetGradeIndication(test);
             }
-
-            var questionEditor = new QuestionTool();
 
             for (var i = 1; i <= test.QuestionsNumber; i++)
             {
-                test.Questions.Add(questionEditor.InputQuestion(test, i));
+                test.Questions.Add(questionEditor.GetQuestion(test, i));
             }
 
             SetTimerValue(test);
@@ -119,19 +121,30 @@ namespace PBK.Logic.TestEditing
             topicSerializer.Serialize(testTopic);
         }
 
-        private Topic SetTitle(BriefTestInfo test, ConsoleOutput writer)
+        private Topic SetTopic(BriefTestInfo test)
         {
-            var topic = new Topic()
-            {
-                Title = writer.GetInput(TextForOutput.InputTopic)
-            };
+            var writer = new ConsoleOutput();
+            var topicSerializer = new TopicSerializer();
 
-            test.TopicName = topic.Title;
+            var topicName = writer.GetInput(TextForOutput.InputTopic);
+            test.TopicName = topicName;
+
+            var topic = topicSerializer.Deserialize(topicName);
+
+            if (topic != null)
+            {
+                return topic;
+            }
+
+            topic = new Topic()
+            {
+                Title = topicName
+            };
 
             return topic;
         }
 
-        private void CloseQuestions(Test test)
+        private void SetQuestionsCloseness(Test test)
         {
             var writer = new ConsoleOutput();
 
@@ -151,7 +164,7 @@ namespace PBK.Logic.TestEditing
 
                 default:
                     writer.PrintMessage(TextForOutput.IncorrectInput);
-                    CloseQuestions(test);
+                    SetQuestionsCloseness(test);
                     break;
             }
         }
@@ -168,7 +181,7 @@ namespace PBK.Logic.TestEditing
             else test.QuestionsNumber = result;
         }
 
-        private void IndicateAnswers(Test test)
+        private void SetRightAnswerIndication(Test test)
         {
             var writer = new ConsoleOutput();
 
@@ -186,12 +199,12 @@ namespace PBK.Logic.TestEditing
 
                 default:
                     writer.PrintMessage(TextForOutput.IncorrectInput);
-                    IndicateAnswers(test);
+                    SetRightAnswerIndication(test);
                     break;
             }
         }
 
-        private void IndicateGrade(Test test)
+        private void SetGradeIndication(Test test)
         {
             var writer = new ConsoleOutput();
 
@@ -209,7 +222,7 @@ namespace PBK.Logic.TestEditing
 
                 default:
                     writer.PrintMessage(TextForOutput.IncorrectInput);
-                    IndicateGrade(test);
+                    SetGradeIndication(test);
                     break;
             }
         }

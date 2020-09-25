@@ -6,7 +6,7 @@ namespace PBK.Logic.QuestionEditing
 {
     public class QuestionTool
     {
-        public Question InputQuestion(Test test, int questionNumber)
+        public Question GetQuestion(Test test, int questionNumber)
         {
             var writer = new ConsoleOutput();
 

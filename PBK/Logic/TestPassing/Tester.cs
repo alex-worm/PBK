@@ -39,7 +39,7 @@ namespace PBK.Logic.TestPassing
 
             GetPassResults(test, result);
 
-            OutputResults(test, result);
+            ExportResults(test, result);
         }
 
         private void GetPassResults(Test test, Result result)
@@ -57,6 +57,7 @@ namespace PBK.Logic.TestPassing
                 }
 
                 var userAnswer = AnswerTheQuestion(el);
+                result.UserAnswers.Add(userAnswer);
 
                 if (userAnswer == el.CorrectAnswer)
                 {
@@ -67,8 +68,6 @@ namespace PBK.Logic.TestPassing
                 {
                     result.IncorrectAnswers++;
                 }
-
-                result.UserAnswers.Add(userAnswer);
 
                 if (test.IsIndicateAnswer)
                 {
@@ -94,7 +93,7 @@ namespace PBK.Logic.TestPassing
             return Console.ReadLine();
         }
 
-        private void OutputResults(Test test, Result result)
+        private void ExportResults(Test test, Result result)
         {
             var writer = new ConsoleOutput();
             var testSerializer = new TestSerializer();
