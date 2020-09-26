@@ -1,4 +1,4 @@
-﻿namespace PBK.Logic
+﻿namespace PBK.Logic.Serializers
 {
     public interface ISerializer<T>
     {

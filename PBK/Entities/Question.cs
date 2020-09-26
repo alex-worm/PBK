@@ -4,34 +4,25 @@ namespace PBK.Entities
 {
     public class Question
     {
-        private int _questionRating;
-        private int _answersNumber;
+        private int _score;
 
         public Question()
         {
             Answers = new List<string>();
         }
 
-        public string QuestionText { get; set; }
+        public string Text { get; set; }
 
-        public int QuestionNumber { get; set; }
+        public int Number { get; set; }
 
         public List<string> Answers { get; set; }
 
         public string CorrectAnswer { get; set; }
 
-        public int AnswersNumber
+        public int Score
         {
-            get => _answersNumber;
-            set => _answersNumber = value >= 0
-                ? value
-                : default;
-        }
-
-        public int QuestionRating
-        {
-            get => _questionRating;
-            set => _questionRating = value >= 0
+            get => _score;
+            set => _score = value >= 0
                 ? value
                 : default;
         }

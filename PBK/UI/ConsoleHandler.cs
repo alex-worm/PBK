@@ -3,9 +3,9 @@ using System;
 
 namespace PBK.UI
 {
-    public class ConsoleOutput
+    public class ConsoleHandler
     {
-        public void PrintMessage(string message)
+        public void ShowMessage(string message)
         {
             Console.WriteLine(message);
         }
@@ -17,28 +17,28 @@ namespace PBK.UI
             return Console.ReadLine();
         }
 
-        public void PrintTimeResult(Result result)
+        public void ShowPassTime(Result result)
         {
-            Console.WriteLine(TextForOutput.PassEnd);
+            Console.WriteLine(TextForOutput.PassIsEnded);
             Console.WriteLine($"Pass time: {result.PassTime}");
         }
 
-        public void PrintAnswersCorrectness(Result result)
+        public void ShowAnswersCorrectness(Result result)
         {
             Console.WriteLine($"Total correct answers: {result.CorrectAnswers}\n" +
                               $"Total incorrect answers: {result.IncorrectAnswers}");
         }
 
-        public void PrintGrade(Result result)
+        public void ShowGrade(Result result)
         {
             Console.WriteLine($"Total grade: {result.Grade}");
         }
 
-        public void PrintTopicStats(Topic topic)
+        public void ShowTopicStats(Topic topic)
         {
             topic.IncludedTests.ForEach(el =>
             {
-                PrintMessage(el.ToString());
+                ShowMessage(el.ToString());
             });
         }
     }

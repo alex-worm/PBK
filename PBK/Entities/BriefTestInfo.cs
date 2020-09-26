@@ -2,7 +2,6 @@
 {
     public class BriefTestInfo
     {
-
         public string Name { get; set; }
 
         public string TopicName { get; set; }

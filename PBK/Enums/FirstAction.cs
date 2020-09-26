@@ -1,6 +1,6 @@
-﻿namespace PBK.Logic.Command
+﻿namespace PBK.Enums
 {
-    public enum Command
+    public enum FirstAction
     {
         AddTest = 1,
         Open = 2,

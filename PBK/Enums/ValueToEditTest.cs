@@ -1,4 +1,4 @@
-﻿namespace PBK.Logic.TestEditing
+﻿namespace PBK.Enums
 {
     public enum ValueToEditTest
     {

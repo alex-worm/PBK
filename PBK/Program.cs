@@ -1,4 +1,4 @@
-﻿using PBK.Logic.Command;
+﻿using PBK.Logic.Starter;
 
 namespace PBK
 {
@@ -6,9 +6,7 @@ namespace PBK
     {
         static void Main(string[] args)
         {
-            var executor = new CommandExecutor();
-
-            executor.GetStarted();
+            Starter.Start();
         }
     }
 }

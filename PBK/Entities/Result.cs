@@ -7,10 +7,6 @@ namespace PBK.Entities
     {
         public Result()
         {
-            CorrectAnswers = 0;
-            IncorrectAnswers = 0;
-            Grade = 0;
-
             UserAnswers = new List<string>();
         }
 
