@@ -1,4 +1,4 @@
-﻿namespace PBK.UI
+﻿namespace UI
 {
     public static class TextForOutput
     {
@@ -31,5 +31,6 @@
         public const string EnterQuestionNumber = "Enter number of question to change: ";
         public const string PassIsEnded = "Your attempt is over";
         public const string EnterSubtopicName = "Enter topic's name to make it subtopic: ";
+        public const string AnswerNumber = "{0}. {1}";
     }
 }

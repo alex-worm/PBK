@@ -1,6 +1,4 @@
-﻿using PBK.Logic.Starter;
-
-namespace PBK
+﻿namespace UI
 {
     public class Program
     {
