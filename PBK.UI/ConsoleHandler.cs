@@ -1,6 +1,4 @@
 ﻿using System;
-using Data.Entities;
-using UI.Enums;
 
 namespace UI
 {

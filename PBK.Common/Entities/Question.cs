@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Data.Entities
+namespace Common.Entities
 {
     public class Question
     {

@@ -1,4 +1,4 @@
-﻿namespace UI.Enums
+﻿namespace Common.Enums
 {
     public enum FirstAction
     {

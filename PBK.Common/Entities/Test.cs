@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Data.Entities
+namespace Common.Entities
 {
     public class Test
     {
@@ -16,6 +16,8 @@ namespace Data.Entities
         public int TimerValue { get; set; }
         
         public bool IsClosedQuestions{get;set;}
+        
+        public bool IsIndicateAnswers { get; set; }
 
         public bool IsScoreShown { get; set; }
         

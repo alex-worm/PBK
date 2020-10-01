@@ -1,16 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Common.Entities;
+using Common.Enums;
 using Logic;
-using UI.Enums;
 
 namespace UI
 {
     public static class Starter
     {
         private static readonly ConsoleHandler Console;
+        private static readonly TestService TestService;
+        private static readonly CancellationTokenSource CancelToken;
+
+        private const int MlSecsInMinute = 60000;
 
         static Starter()
         {
             Console = new ConsoleHandler();
+            TestService = new TestService();
+            CancelToken = new CancellationTokenSource();
         }
 
         public static void Start()
@@ -36,7 +45,7 @@ namespace UI
                         break;
 
                     case (int) FirstAction.PassTest:
-                        PassTest();
+                        //PassTest();
                         break;
 
                     case (int) FirstAction.ShowStats:
@@ -51,28 +60,27 @@ namespace UI
 
         private static void AddTest()
         {
-            var name = Console.GetInput(TextForOutput.EnterNameToAdd);
-            var title = Console.GetInput(TextForOutput.EnterTopic);
-
-            var testService = new TestService(name, title);
-
-            var questionsNumber = GetIntValue(TextForOutput.EnterQuestionsNumber);
-
-            var isClosedQuestions = GetBoolValue(TextForOutput.ChooseQuestionsType);
-
-            var isGradeAvailable = isClosedQuestions &&
-                                   GetBoolValue(TextForOutput.EnableShowGrade);
-
-            for (var i = 1; i <= questionsNumber; i++)
+            var test = new Test
             {
-                AddQuestion(testService);
+                Name = Console.GetInput(TextForOutput.EnterNameToAdd),
+                Title = Console.GetInput(TextForOutput.EnterTopic),
+                QuestionsNumber = GetIntValue(TextForOutput.EnterQuestionsNumber),
+                IsClosedQuestions = GetBoolValue(TextForOutput.ChooseQuestionsType),
+                IsIndicateAnswers =
+                    GetBoolValue(TextForOutput.EnableIndicateCorrectAnswer)
+            };
+            
+            test.IsScoreShown = test.IsClosedQuestions &&
+                                GetBoolValue(TextForOutput.EnableShowGrade);
+
+            for (var i = 1; i <= test.QuestionsNumber; i++)
+            {
+                AddQuestion(test.Name, test.Title);
             }
 
-            var timerValue = GetIntValue(TextForOutput.EnterTimerValue);
+            test.TimerValue = GetIntValue(TextForOutput.EnterTimerValue);
 
-            testService.Add(name, title, questionsNumber, isClosedQuestions,
-                isGradeAvailable,
-                timerValue);
+            TestService.Add(test);
         }
 
         private static void EditTest()
@@ -80,29 +88,27 @@ namespace UI
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
-            var testService = new TestService(name, title);
-
             var numberOfValue = GetIntValue(TextForOutput.ChooseTestValueToChange);
 
             switch (numberOfValue)
             {
                 case (int) ValueToEditTest.Name:
                     var newName = Console.GetInput(TextForOutput.EnterNewName);
-                    testService.EditName(newName);
+                    TestService.EditName(name, title, newName);
                     break;
 
                 case (int) ValueToEditTest.AddQuestion:
-                    AddQuestion(testService);
+                    AddQuestion(name, title);
                     break;
 
                 case (int) ValueToEditTest.RemoveQuestion:
                     var questionNumber = GetIntValue(TextForOutput.EnterQuestionNumber);
-                    testService.RemoveQuestion(questionNumber);
+                    TestService.RemoveQuestion(name, title, questionNumber);
                     break;
 
                 case (int) ValueToEditTest.TimerValue:
                     var timerValue = GetIntValue(TextForOutput.EnterTimerValue);
-                    testService.EditTimerValue(timerValue);
+                    TestService.EditTimerValue(name, title, timerValue);
                     break;
 
                 default:
@@ -116,82 +122,83 @@ namespace UI
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
-            var testService = new TestService(name, title);
-
-            testService.Remove();
+            TestService.Remove(name, title);
         }
 
-        private static void PassTest()
+        /*private static void PassTest()
         {
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
-
-            var testService = new TestService(name, title);
+            
+            var test = TestService.GetTest(name, title);
 
             var userAnswers = new List<int>();
 
-            for (var i = 1;; i++)
+            if (test.TimerValue != 0)
             {
-                var (item1, item2) = testService.GetQuestion(i);
+                CancelToken.CancelAfter(test.TimerValue * MlSecsInMinute);
+            }
 
-                if (item1 == null)
+            foreach (var question in test.Questions
+                .TakeWhile(question => !CancelToken.IsCancellationRequested))
+            {
+                Console.ShowMessage(question.Text);
+
+                question.Answers.ForEach(answer => Console.ShowMessage(question.Text));
+
+                var userAnswer = GetIntValue(TextForOutput.EnterAnswer);
+
+                while (userAnswer < 1 || userAnswer > question.Answers.Count)
                 {
-                    break;
-                }
+                    Console.ShowMessage(TextForOutput.IncorrectInput);
 
-                Console.ShowMessage(item1);
-
-                for (var j = 0; j < item2.Count; j++)
-                {
-                    Console.ShowMessage(
-                        string.Format(TextForOutput.AnswerNumber, j, item2[j]));
-                }
-
-                int userAnswer;
-                do
-                {
                     userAnswer = GetIntValue(TextForOutput.EnterAnswer);
-                } while (userAnswer < 1 || userAnswer > item2.Count);
+                }
+
+                if (test.IsIndicateAnswers)
+                {
+                    Console.ShowMessage((userAnswer == question.CorrectAnswer)
+                        .ToString());
+                }
 
                 userAnswers.Add(userAnswer);
             }
 
-            var results = testService.ExportResults(userAnswers);
+            var results = TestService.ExportResults(test userAnswers);
 
             if (results != null)
             {
                 Console.ShowMessage(results);
             }
-        }
+        }*/
 
         private static void ShowStats()
         {
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
-            var testService = new TestService(name, title);
-
-            Console.ShowMessage(testService.GetStats());
+            Console.ShowMessage(TestService.GetStats(name, title));
         }
 
-        private static void AddQuestion(TestService testService)
+        private static void AddQuestion(string name, string title)
         {
-            var text = Console.GetInput(TextForOutput.EnterQuestionText);
+            var newQuestion = new Question
+            {
+                Text = Console.GetInput(TextForOutput.EnterQuestionText)
+            };
 
             var answersNumber = GetIntValue(TextForOutput.EnterAnswersNumber);
 
-            var answers = new List<string>();
             for (var j = 0; j < answersNumber; j++)
             {
-                answers.Add(Console.GetInput(TextForOutput.EnterAnswer));
+                newQuestion.Answers.Add(Console.GetInput(TextForOutput.EnterAnswer));
             }
 
-            var correctAnswer = GetIntValue(TextForOutput.EnterCorrectAnswer);
+            newQuestion.CorrectAnswer = GetIntValue(TextForOutput.EnterCorrectAnswer);
 
-            var score = GetIntValue(TextForOutput.EnterQuestionScore);
+            newQuestion.Score = GetIntValue(TextForOutput.EnterQuestionScore);
 
-            testService.AddQuestion(text, answers, correctAnswer,
-                score);
+            TestService.AddQuestion(name, title, newQuestion);
         }
 
         private static int GetIntValue(string message)
