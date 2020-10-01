@@ -27,108 +27,58 @@ namespace Logic
             _testsSerializer.Serialize(testList);
         }
 
-        public void EditName(string name, string title, string newName)
+        public void EditName(Test test, string newName)
         {
             var testList = _testsSerializer.Deserialize();
 
-            var test = testList.Find(el => el.Name == name && el.Title == title);
-
-            if (test == null)
-            {
-                throw new NullReferenceException(nameof(test));
-            }
-
-            test.Name = newName;
+            testList.Find(el => el == test).Name = newName;
 
             _testsSerializer.Serialize(testList);
         }
 
-        public void AddQuestion(string name, string title, Question newQuestion)
+        public void AddQuestion(Test test, Question newQuestion)
         {
             var testList = _testsSerializer.Deserialize();
 
-            var test = testList.Find(el => el.Name == name && el.Title == title);
-
-            if (test == null)
-            {
-                throw new NullReferenceException(nameof(test));
-            }
-            
-            test.Questions.Add(newQuestion);
+            testList.Find(el => el == test).Questions.Add(newQuestion);
 
             _testsSerializer.Serialize(testList);
         }
 
-        public void RemoveQuestion(string name, string title, int questionNumber)
+        public void RemoveQuestion(Test test, int questionNumber)
         {
             var testList = _testsSerializer.Deserialize();
-
-            var test = testList.Find(el => el.Name == name && el.Title == title);
-
-            if (test == null)
-            {
-                throw new NullReferenceException(nameof(test));
-            }
             
             if (questionNumber < 1 || questionNumber > test.QuestionsNumber)
             {
                 throw new IndexOutOfRangeException(nameof(questionNumber));
             }
 
-            test.Questions.Remove(test.Questions
+            testList.Find(el => el == test).Questions.Remove(test.Questions
                 .Find(el => el.Number == questionNumber));
-            _testsSerializer.Serialize(testList);
-        }
-
-        public void EditTimerValue(string name, string title, int newValue)
-        {
-            var testList = _testsSerializer.Deserialize();
-
-            var test = testList.Find(el => el.Name == name && el.Title == title);
-
-            if (test == null)
-            {
-                throw new NullReferenceException(nameof(test));
-            }
             
-            test.TimerValue = newValue;
+            _testsSerializer.Serialize(testList);
+        }
+
+        public void EditTimerValue(Test test, int newValue)
+        {
+            var testList = _testsSerializer.Deserialize();
+
+            testList.Find(el => el == test).TimerValue = newValue;
 
             _testsSerializer.Serialize(testList);
         }
 
-        public void Remove(string name, string title)
+        public void Remove(Test test)
         {
             var testList = _testsSerializer.Deserialize();
-
-            var test = testList.Find(el => el.Name == name && el.Title == title);
-
-            if (test == null)
-            {
-                throw new NullReferenceException(nameof(test));
-            }
             
             testList.Remove(test);
 
             _testsSerializer.Serialize(testList);
         }
 
-        /*public Test GetTest(string name, string title)
-        {
-            var testList = _testsSerializer.Deserialize();
-
-            var test = testList.Find(el => el.Name == name && el.Title == title);
-
-            if (test == null)
-            {
-                throw new NullReferenceException(nameof(test));
-            }
-
-            _stopwatch.Start();
-            
-            return test;
-        }
-
-        public string ExportResults(string name, string title, List<int> userAnswers)
+        /*public string ExportResults(string name, string title, List<int> userAnswers)
         {
             _stopwatch.Stop();
 
@@ -173,7 +123,14 @@ namespace Logic
                 correct, incorrect);
         }*/
 
-        public string GetStats(string name, string title)
+        public string GetStats(Test test)
+        {
+            var testList = _testsSerializer.Deserialize();
+            
+            return testList.Find(el => el == test).ToString();
+        }
+
+        public Test GetTest(string name, string title)
         {
             var testList = _testsSerializer.Deserialize();
 
@@ -183,8 +140,8 @@ namespace Logic
             {
                 throw new NullReferenceException(nameof(test));
             }
-            
-            return test.ToString();
+
+            return test;
         }
     }
 }

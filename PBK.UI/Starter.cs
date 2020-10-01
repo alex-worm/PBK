@@ -65,17 +65,20 @@ namespace UI
                 Name = Console.GetInput(TextForOutput.EnterNameToAdd),
                 Title = Console.GetInput(TextForOutput.EnterTopic),
                 QuestionsNumber = GetIntValue(TextForOutput.EnterQuestionsNumber),
-                IsClosedQuestions = GetBoolValue(TextForOutput.ChooseQuestionsType),
-                IsIndicateAnswers =
-                    GetBoolValue(TextForOutput.EnableIndicateCorrectAnswer)
+                IsClosedQuestions = GetBoolValue(TextForOutput.ChooseQuestionsType)
             };
-            
-            test.IsScoreShown = test.IsClosedQuestions &&
-                                GetBoolValue(TextForOutput.EnableShowGrade);
+
+            if (test.IsClosedQuestions)
+            {
+                test.IsIndicateAnswers =
+                    GetBoolValue(TextForOutput.EnableIndicateCorrectAnswer);
+                
+                test.IsScoreShown = GetBoolValue(TextForOutput.EnableShowGrade);
+            }
 
             for (var i = 1; i <= test.QuestionsNumber; i++)
             {
-                AddQuestion(test.Name, test.Title);
+                AddQuestion(test);
             }
 
             test.TimerValue = GetIntValue(TextForOutput.EnterTimerValue);
@@ -88,27 +91,29 @@ namespace UI
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
+            var test = TestService.GetTest(name, title);
+
             var numberOfValue = GetIntValue(TextForOutput.ChooseTestValueToChange);
 
             switch (numberOfValue)
             {
                 case (int) ValueToEditTest.Name:
                     var newName = Console.GetInput(TextForOutput.EnterNewName);
-                    TestService.EditName(name, title, newName);
+                    TestService.EditName(test, newName);
                     break;
 
                 case (int) ValueToEditTest.AddQuestion:
-                    AddQuestion(name, title);
+                    AddQuestion(test);
                     break;
 
                 case (int) ValueToEditTest.RemoveQuestion:
                     var questionNumber = GetIntValue(TextForOutput.EnterQuestionNumber);
-                    TestService.RemoveQuestion(name, title, questionNumber);
+                    TestService.RemoveQuestion(test, questionNumber);
                     break;
 
                 case (int) ValueToEditTest.TimerValue:
                     var timerValue = GetIntValue(TextForOutput.EnterTimerValue);
-                    TestService.EditTimerValue(name, title, timerValue);
+                    TestService.EditTimerValue(test, timerValue);
                     break;
 
                 default:
@@ -122,7 +127,9 @@ namespace UI
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
-            TestService.Remove(name, title);
+            var test = TestService.GetTest(name, title);
+
+            TestService.Remove(test);
         }
 
         /*private static void PassTest()
@@ -177,28 +184,33 @@ namespace UI
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
-            Console.ShowMessage(TestService.GetStats(name, title));
+            var test = TestService.GetTest(name, title);
+
+            Console.ShowMessage(TestService.GetStats(test));
         }
 
-        private static void AddQuestion(string name, string title)
+        private static void AddQuestion(Test test)
         {
             var newQuestion = new Question
             {
                 Text = Console.GetInput(TextForOutput.EnterQuestionText)
             };
 
-            var answersNumber = GetIntValue(TextForOutput.EnterAnswersNumber);
-
-            for (var j = 0; j < answersNumber; j++)
+            if (test.IsClosedQuestions)
             {
-                newQuestion.Answers.Add(Console.GetInput(TextForOutput.EnterAnswer));
+                var answersNumber = GetIntValue(TextForOutput.EnterAnswersNumber);
+
+                for (var j = 0; j < answersNumber; j++)
+                {
+                    newQuestion.Answers.Add(Console.GetInput(TextForOutput.EnterAnswer));
+                }
+
+                newQuestion.CorrectAnswer = GetIntValue(TextForOutput.EnterCorrectAnswer);
+
+                newQuestion.Score = GetIntValue(TextForOutput.EnterQuestionScore);
             }
 
-            newQuestion.CorrectAnswer = GetIntValue(TextForOutput.EnterCorrectAnswer);
-
-            newQuestion.Score = GetIntValue(TextForOutput.EnterQuestionScore);
-
-            TestService.AddQuestion(name, title, newQuestion);
+            TestService.AddQuestion(test, newQuestion);
         }
 
         private static int GetIntValue(string message)

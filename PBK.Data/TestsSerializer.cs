@@ -9,21 +9,18 @@ namespace Data
     {
         public async void Serialize(List<Test> tests)
         {
-            await using var fStream = new FileStream("Tests.json", FileMode.Open);
+            await using var fStream = new FileStream("Tests.json", FileMode.Create);
 
             await JsonSerializer.SerializeAsync(fStream, tests);
         }
 
         public List<Test> Deserialize()
         {
-            if (!File.Exists("Tests.json"))
-            {
-                return new List<Test>();
-            }
-
-            using var fStream = new FileStream("Tests.json", FileMode.OpenOrCreate);          
+            using var fStream = new FileStream("Tests.json", FileMode.OpenOrCreate);
             
-            return JsonSerializer.DeserializeAsync<List<Test>>(fStream).Result;
+            return new FileInfo("Tests.json").Length == 0 
+                ? new List<Test>() 
+                : JsonSerializer.DeserializeAsync<List<Test>>(fStream).Result;
         }
     }
 }
