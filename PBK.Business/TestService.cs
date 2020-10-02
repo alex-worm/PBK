@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Common;
 using Common.Entities;
 using Data;
 
@@ -28,20 +29,26 @@ namespace Logic
         {
             var testList = _testsSerializer.Deserialize();
 
-            testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                .Name = newName;
+            var index = testList.FindIndex(el =>
+                el.Name == test.Name && el.Title == test.Title);
+
+            test.Name = newName;
+            
+            testList[index] = test;
 
             _testsSerializer.Serialize(testList);
         }
 
-        public void AddQuestion(Test test)
+        public void AddQuestion(Test test, Question newQuestion)
         {
             var testList = _testsSerializer.Deserialize();
 
-            testList.Remove(testList.Find(el =>
-                el.Name == test.Name && el.Title == test.Title));
+            var index = testList.FindIndex(el =>
+                el.Name == test.Name && el.Title == test.Title);
 
-            testList.Add(test);
+            test.Questions.Add(newQuestion);
+
+            testList[index] = test;
 
             _testsSerializer.Serialize(testList);
         }
@@ -55,8 +62,13 @@ namespace Logic
                 throw new IndexOutOfRangeException(nameof(questionNumber));
             }
 
-            testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                .Questions.Remove(test.Questions.Find(el => el.Number == questionNumber));
+            var index = testList.FindIndex(el =>
+                el.Name == test.Name && el.Title == test.Title);
+
+            test.Questions.Remove(
+                test.Questions.Find(el => el.Number == questionNumber));
+
+            testList[index] = test;
             
             _testsSerializer.Serialize(testList);
         }
@@ -65,8 +77,12 @@ namespace Logic
         {
             var testList = _testsSerializer.Deserialize();
 
-            testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                    .TimerValue = newValue;
+            var index = testList.FindIndex(el =>
+                el.Name == test.Name && el.Title == test.Title);
+
+            test.TimerValue = newValue;
+
+            testList[index] = test;
 
             _testsSerializer.Serialize(testList);
         }
@@ -74,8 +90,9 @@ namespace Logic
         public void Remove(Test test)
         {
             var testList = _testsSerializer.Deserialize();
-            
-            testList.Remove(test);
+
+            testList.Remove(testList.Find(el =>
+                el.Name == test.Name && el.Title == test.Title));
 
             _testsSerializer.Serialize(testList);
         }
@@ -83,27 +100,32 @@ namespace Logic
         public string ExportResults(Test test, List<int> userAnswers, TimeSpan passTime)
         {
             var testList = _testsSerializer.Deserialize();
+
+            var index = testList.FindIndex(el =>
+                el.Name == test.Name && el.Title == test.Title);
             
             test.PassesNumber++;
 
             using (var fileWriter =
-                new StreamWriter($@"{test.Name}({test.PassesNumber}).txt"))
+                new StreamWriter(
+                    string.Concat(
+                        TextForOutput.UserAnswersTxt, test.Name, test.PassesNumber)))
             {
                 for (var i = 0; i < userAnswers.Count; i++)
                 {
                     fileWriter.WriteLine(
-                        $"{test.Questions[i].Text}: {userAnswers[i]}");
+                        string.Concat(
+                            TextForOutput.UserAnswer, test.Questions[i].Text, userAnswers[i]));
                 }
             }
 
             if (!test.IsClosedQuestions)
             {
-                testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                    .PassesNumber++;
+                testList[index] = test;
                 
                 _testsSerializer.Serialize(testList);
-                
-                return string.Concat("Pass time: {0}", passTime);
+
+                return string.Concat(TextForOutput.PassTime, passTime);
             }
 
             var grade = 0;
@@ -126,24 +148,22 @@ namespace Logic
             test.TotalCorrectAnswers += correct;
             test.TotalIncorrectAnswers += incorrect;
 
-            testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                .PassesNumber++;
-            testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                .TotalCorrectAnswers += correct;
-            testList.Find(el => el.Name == test.Name && el.Title == test.Title)
-                .TotalIncorrectAnswers += incorrect;
+            testList[index] = test;
             
             _testsSerializer.Serialize(testList);
 
-            return string.Concat("\nGrade: {0}\nCorrect: {1}\nIncorrect: {2}\nPass time: {3}\n\n", grade,
-                correct, incorrect);
+            return string.Concat(
+                TextForOutput.FullResult, grade, correct, incorrect, passTime);
         }
 
         public string GetStats(Test test)
         {
             var testList = _testsSerializer.Deserialize();
+
+            var index = testList.FindIndex(el =>
+                el.Name == test.Name && el.Title == test.Title);
             
-            return testList.Find(el => el == test).ToString();
+            return testList[index].ToString();
         }
 
         public Test GetTest(string name, string title)

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
+using Common;
 using Common.Entities;
 using Common.Enums;
 using Logic;
@@ -12,8 +12,8 @@ namespace UI
     {
         private static readonly ConsoleHandler Console;
         private static readonly TestService TestService;
-        private static CancellationTokenSource CancelToken;
-        private static Stopwatch Stopwatch;
+        private static CancellationTokenSource _cancelToken;
+        private static Stopwatch _stopwatch;
 
         private const int MlSecsInMinute = 60000;
 
@@ -125,7 +125,7 @@ namespace UI
 
         private static void RemoveTest()
         {
-            var name = Console.GetInput(TextForOutput.EnterNameToEdit);
+            var name = Console.GetInput(TextForOutput.EnterNameToRemove);
             var title = Console.GetInput(TextForOutput.EnterTopic);
 
             var test = TestService.GetTest(name, title);
@@ -142,19 +142,19 @@ namespace UI
 
             var userAnswers = new List<int>();
 
-            CancelToken = new CancellationTokenSource();
-            Stopwatch = new Stopwatch();
+            _cancelToken = new CancellationTokenSource();
+            _stopwatch = new Stopwatch();
             
-            Stopwatch.Start();
+            _stopwatch.Start();
             
             if (test.TimerValue != 0)
             {
-                CancelToken.CancelAfter(test.TimerValue * MlSecsInMinute);
+                _cancelToken.CancelAfter(test.TimerValue * MlSecsInMinute);
             }
 
             foreach (var question in test.Questions)
             {
-                if (CancelToken.IsCancellationRequested)
+                if (_cancelToken.IsCancellationRequested)
                 {
                     Console.ShowMessage(TextForOutput.PassIsEnded);
                     break;
@@ -162,7 +162,9 @@ namespace UI
                 
                 Console.ShowMessage(question.Text);
 
-                question.Answers.ForEach(answer => Console.ShowMessage(question.Text));
+                question.Answers.ForEach(answer => 
+                    Console.ShowMessage(string.Concat(
+                        TextForOutput.AnswerNumber, question.Text)));
 
                 var userAnswer = GetIntValue(TextForOutput.EnterAnswer);
 
@@ -182,10 +184,10 @@ namespace UI
                 userAnswers.Add(userAnswer);
             }
             
-            Stopwatch.Stop();
+            _stopwatch.Stop();
 
             var results = TestService.ExportResults(test, userAnswers,
-                Stopwatch.Elapsed);
+                _stopwatch.Elapsed);
 
             Console.ShowMessage(results);
         }
@@ -221,10 +223,8 @@ namespace UI
 
                 newQuestion.Score = GetIntValue(TextForOutput.EnterQuestionScore);
             }
-            
-            test.Questions.Add(newQuestion);
 
-            TestService.AddQuestion(test);
+            TestService.AddQuestion(test, newQuestion);
         }
 
         private static int GetIntValue(string message)

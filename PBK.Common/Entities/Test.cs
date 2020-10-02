@@ -35,12 +35,11 @@ namespace Common.Entities
         {
             if(IsClosedQuestions)
             {
-                return $"Topic: {Title}\nPasses number: {PassesNumber}\n" +
-                       $"Total correct answers: {TotalCorrectAnswers}\n" +
-                       $"Total incorrect answers: {TotalIncorrectAnswers}\n\n";
+                return string.Concat(TextForOutput.ClosedTitleStats, Title,
+                PassesNumber,TotalCorrectAnswers,TotalIncorrectAnswers);
             }
-            
-            return $"Topic: {Title}\nPasses number: {PassesNumber}\n";
+
+            return string.Concat(TextForOutput.OpenedTitleStats, Title, PassesNumber);
         }
     }
 }
