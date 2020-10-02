@@ -108,14 +108,13 @@ namespace Logic
 
             using (var fileWriter =
                 new StreamWriter(
-                    string.Concat(
+                    string.Format(
                         TextForOutput.UserAnswersTxt, test.Name, test.PassesNumber)))
             {
                 for (var i = 0; i < userAnswers.Count; i++)
                 {
                     fileWriter.WriteLine(
-                        string.Concat(
-                            TextForOutput.UserAnswer, test.Questions[i].Text, userAnswers[i]));
+                        TextForOutput.UserAnswer, test.Questions[i].Text, userAnswers[i]);
                 }
             }
 
@@ -125,7 +124,7 @@ namespace Logic
                 
                 _testsSerializer.Serialize(testList);
 
-                return string.Concat(TextForOutput.PassTime, passTime);
+                return string.Format(TextForOutput.PassTime, passTime);
             }
 
             var grade = 0;
@@ -152,18 +151,8 @@ namespace Logic
             
             _testsSerializer.Serialize(testList);
 
-            return string.Concat(
+            return string.Format(
                 TextForOutput.FullResult, grade, correct, incorrect, passTime);
-        }
-
-        public string GetStats(Test test)
-        {
-            var testList = _testsSerializer.Deserialize();
-
-            var index = testList.FindIndex(el =>
-                el.Name == test.Name && el.Title == test.Title);
-            
-            return testList[index].ToString();
         }
 
         public Test GetTest(string name, string title)

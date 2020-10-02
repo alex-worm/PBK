@@ -162,9 +162,11 @@ namespace UI
                 
                 Console.ShowMessage(question.Text);
 
-                question.Answers.ForEach(answer => 
-                    Console.ShowMessage(string.Concat(
-                        TextForOutput.AnswerNumber, question.Text)));
+                for (var i = 0; i < question.Answers.Count; i++)
+                {
+                    Console.ShowMessage(string.Format(
+                        TextForOutput.AnswerNumber, i, question.Text));
+                }
 
                 var userAnswer = GetIntValue(TextForOutput.EnterAnswer);
 
@@ -199,7 +201,7 @@ namespace UI
 
             var test = TestService.GetTest(name, title);
 
-            Console.ShowMessage(TestService.GetStats(test));
+            Console.ShowMessage(test.ToString());
         }
 
         private static void AddQuestion(Test test)
