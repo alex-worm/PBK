@@ -29,7 +29,7 @@ namespace UI
 
             while (true)
             {
-                var action = GetIntValue(TextForOutput.EnterStarterCommand);
+                var action = Console.GetIntValue(TextForOutput.EnterStarterCommand);
 
                 switch (action)
                 {
@@ -65,16 +65,17 @@ namespace UI
             {
                 Name = Console.GetInput(TextForOutput.EnterNameToAdd),
                 Title = Console.GetInput(TextForOutput.EnterTopic),
-                QuestionsNumber = GetIntValue(TextForOutput.EnterQuestionsNumber),
-                IsClosedQuestions = GetBoolValue(TextForOutput.ChooseQuestionsType)
+                QuestionsNumber = Console.GetIntValue(TextForOutput.EnterQuestionsNumber),
+                IsClosedQuestions =
+                    Console.GetBoolValue(TextForOutput.ChooseQuestionsType)
             };
 
             if (test.IsClosedQuestions)
             {
                 test.IsIndicateAnswers =
-                    GetBoolValue(TextForOutput.EnableIndicateCorrectAnswer);
-                
-                test.IsScoreShown = GetBoolValue(TextForOutput.EnableShowGrade);
+                    Console.GetBoolValue(TextForOutput.EnableIndicateCorrectAnswer);
+
+                test.IsScoreShown = Console.GetBoolValue(TextForOutput.EnableShowGrade);
             }
 
             for (var i = 1; i <= test.QuestionsNumber; i++)
@@ -82,7 +83,7 @@ namespace UI
                 AddQuestion(test);
             }
 
-            test.TimerValue = GetIntValue(TextForOutput.EnterTimerValue);
+            test.TimerValue = Console.GetIntValue(TextForOutput.EnterTimerValue);
 
             TestService.Add(test);
         }
@@ -94,7 +95,8 @@ namespace UI
 
             var test = TestService.GetTest(name, title);
 
-            var numberOfValue = GetIntValue(TextForOutput.ChooseTestValueToChange);
+            var numberOfValue =
+                Console.GetIntValue(TextForOutput.ChooseValueToChange);
 
             switch (numberOfValue)
             {
@@ -108,12 +110,13 @@ namespace UI
                     break;
 
                 case (int) ValueToEditTest.RemoveQuestion:
-                    var questionNumber = GetIntValue(TextForOutput.EnterQuestionNumber);
+                    var questionNumber =
+                        Console.GetIntValue(TextForOutput.EnterQuestionNumber);
                     TestService.RemoveQuestion(test, questionNumber);
                     break;
 
                 case (int) ValueToEditTest.TimerValue:
-                    var timerValue = GetIntValue(TextForOutput.EnterTimerValue);
+                    var timerValue = Console.GetIntValue(TextForOutput.EnterTimerValue);
                     TestService.EditTimerValue(test, timerValue);
                     break;
 
@@ -137,16 +140,16 @@ namespace UI
         {
             var name = Console.GetInput(TextForOutput.EnterNameToEdit);
             var title = Console.GetInput(TextForOutput.EnterTopic);
-            
+
             var test = TestService.GetTest(name, title);
 
             var userAnswers = new List<int>();
 
             _cancelToken = new CancellationTokenSource();
             _stopwatch = new Stopwatch();
-            
+
             _stopwatch.Start();
-            
+
             if (test.TimerValue != 0)
             {
                 _cancelToken.CancelAfter(test.TimerValue * MlSecsInMinute);
@@ -159,7 +162,7 @@ namespace UI
                     Console.ShowMessage(TextForOutput.PassIsEnded);
                     break;
                 }
-                
+
                 Console.ShowMessage(question.Text);
 
                 for (var i = 0; i < question.Answers.Count; i++)
@@ -168,13 +171,13 @@ namespace UI
                         TextForOutput.AnswerNumber, i, question.Text));
                 }
 
-                var userAnswer = GetIntValue(TextForOutput.EnterAnswer);
+                var userAnswer = Console.GetIntValue(TextForOutput.EnterAnswer);
 
                 while (userAnswer < 1 || userAnswer > question.Answers.Count)
                 {
                     Console.ShowMessage(TextForOutput.IncorrectInput);
 
-                    userAnswer = GetIntValue(TextForOutput.EnterAnswer);
+                    userAnswer = Console.GetIntValue(TextForOutput.EnterAnswer);
                 }
 
                 if (test.IsIndicateAnswers)
@@ -185,7 +188,7 @@ namespace UI
 
                 userAnswers.Add(userAnswer);
             }
-            
+
             _stopwatch.Stop();
 
             var results = TestService.ExportResults(test, userAnswers,
@@ -214,44 +217,20 @@ namespace UI
 
             if (test.IsClosedQuestions)
             {
-                var answersNumber = GetIntValue(TextForOutput.EnterAnswersNumber);
+                var answersNumber = Console.GetIntValue(TextForOutput.EnterAnswersNumber);
 
                 for (var j = 0; j < answersNumber; j++)
                 {
                     newQuestion.Answers.Add(Console.GetInput(TextForOutput.EnterAnswer));
                 }
 
-                newQuestion.CorrectAnswer = GetIntValue(TextForOutput.EnterCorrectAnswer);
+                newQuestion.CorrectAnswer =
+                    Console.GetIntValue(TextForOutput.EnterCorrectAnswer);
 
-                newQuestion.Score = GetIntValue(TextForOutput.EnterQuestionScore);
+                newQuestion.Score = Console.GetIntValue(TextForOutput.EnterQuestionScore);
             }
 
             TestService.AddQuestion(test, newQuestion);
-        }
-
-        private static int GetIntValue(string message)
-        {
-            int result;
-
-            while (!int.TryParse(Console.GetInput(message), out result))
-            {
-                Console.ShowMessage(TextForOutput.IncorrectInput);
-            }
-
-            return result;
-        }
-
-        private static bool GetBoolValue(string message)
-        {
-            int result;
-
-            while (!int.TryParse(Console.GetInput(message),
-                out result) && result != 1 && result != 2)
-            {
-                Console.ShowMessage(TextForOutput.IncorrectInput);
-            }
-
-            return result == 1;
         }
     }
 }

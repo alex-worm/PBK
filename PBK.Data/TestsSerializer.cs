@@ -10,7 +10,9 @@ namespace Data
     {
         public async void Serialize(List<Test> tests)
         {
-            await using var fStream = new FileStream(TextForOutput.JsonName, FileMode.Create);
+            await File.WriteAllTextAsync(TextForOutput.JsonName, string.Empty);
+            
+            await using var fStream = new FileStream(TextForOutput.JsonName, FileMode.Open);
 
             await JsonSerializer.SerializeAsync(fStream, tests);
         }

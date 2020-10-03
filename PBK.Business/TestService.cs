@@ -152,7 +152,7 @@ namespace Logic
             _testsSerializer.Serialize(testList);
 
             return string.Format(
-                TextForOutput.FullResult, grade, correct, incorrect, passTime);
+                TextForOutput.PassResult, grade, correct, incorrect, passTime);
         }
 
         public Test GetTest(string name, string title)

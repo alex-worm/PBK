@@ -28,7 +28,7 @@
         public const string EnterQuestionText = "Enter question's text: ";
         public const string EnterAnswer = "Enter answer for this question:";
         public const string EnterCorrectAnswer = "Enter correct answer: ";
-        public const string ChooseTestValueToChange = 
+        public const string ChooseValueToChange = 
             "Choose how to change:\n1. Edit name\n" +
             "2. Add Question\n3. Remove question\n4. Edit timer value\n";
         public const string EnterQuestionScore = 
@@ -46,7 +46,7 @@
         public const string UserAnswersTxt = @"{0}({1}).txt";
         public const string UserAnswer = "{0}: {1}";
         public const string PassTime = "Pass time: {0}";
-        public const string FullResult =
+        public const string PassResult =
             "\nGrade: {0}\nCorrect: {1}\nIncorrect: {2}\nPass time: {3}\n\n";
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Common;
 
 namespace UI
 {
@@ -14,6 +15,31 @@ namespace UI
             Console.Write(message);
 
             return Console.ReadLine();
+        }
+
+        internal int GetIntValue(string message)
+        {
+            int result;
+
+            while (!int.TryParse(GetInput(message), out result) && result < 0)
+            {
+                Console.WriteLine(TextForOutput.IncorrectInput);
+            }
+
+            return result;
+        }
+
+        internal bool GetBoolValue(string message)
+        {
+            int result;
+
+            while (!int.TryParse(GetInput(message),
+                out result) && result != 1 && result != 2)
+            {
+                Console.WriteLine(TextForOutput.IncorrectInput);
+            }
+
+            return result == 1;
         }
     }
 }
