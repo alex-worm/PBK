@@ -78,14 +78,14 @@ namespace UI
                 test.IsScoreShown = Console.GetBoolValue(TextForOutput.EnableShowGrade);
             }
 
+            test.TimerValue = Console.GetIntValue(TextForOutput.EnterTimerValue);
+
+            TestService.Add(test);
+
             for (var i = 1; i <= test.QuestionsNumber; i++)
             {
                 AddQuestion(test);
             }
-
-            test.TimerValue = Console.GetIntValue(TextForOutput.EnterTimerValue);
-
-            TestService.Add(test);
         }
 
         private static void EditTest()
