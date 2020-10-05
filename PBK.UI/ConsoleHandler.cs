@@ -21,7 +21,7 @@ namespace UI
         {
             int result;
 
-            while (!int.TryParse(GetInput(message), out result) && result < 0)
+            while (!int.TryParse(GetInput(message), out result) || result < 0)
             {
                 Console.WriteLine(TextForOutput.IncorrectInput);
             }
