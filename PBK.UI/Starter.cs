@@ -84,7 +84,7 @@ namespace UI
 
             for (var i = 1; i <= test.QuestionsNumber; i++)
             {
-                AddQuestion(test);
+                AddQuestion(test, i);
             }
         }
 
@@ -106,7 +106,8 @@ namespace UI
                     break;
 
                 case (int) ValueToEditTest.AddQuestion:
-                    AddQuestion(test);
+                    AddQuestion(test, test.QuestionsNumber + 1);
+                    test.QuestionsNumber++;
                     break;
 
                 case (int) ValueToEditTest.RemoveQuestion:
@@ -207,12 +208,12 @@ namespace UI
             Console.ShowMessage(test.ToString());
         }
 
-        private static void AddQuestion(Test test)
+        private static void AddQuestion(Test test, int number)
         {
             var newQuestion = new Question
             {
                 Text = Console.GetInput(TextForOutput.EnterQuestionText),
-                Number = ++test.QuestionsNumber
+                Number = number
             };
 
             if (test.IsClosedQuestions)
